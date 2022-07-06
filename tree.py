@@ -67,8 +67,7 @@ class Tree:
             _stems[3] = _stems[3][0:-1] + " "
         return _stems
 
-    @property
-    def tree(self) -> str:
+    def generate(self) -> str:
         structure: Structure = self.__get_structure()
         lines_with_locator: List[Tuple[Locator, str]] = []
         for locator in structure:
@@ -106,3 +105,9 @@ class Tree:
             lines_with_locator.append((locator, line))
         lines_with_locator.sort(key=lambda i: i[0])
         return "\n".join([i[1] for i in lines_with_locator])
+
+
+def tree(inst: Inst, iterfunc: IterFunc = None, indent: int = 4) -> str:
+    _tree = Tree(inst, iterfunc)
+    _tree.indent = indent
+    return _tree.generate()
