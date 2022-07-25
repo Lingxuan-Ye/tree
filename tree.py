@@ -101,7 +101,7 @@ class Tree:
                         prefix_list.append(self.stems[2])
                     else:
                         prefix_list.append(self.stems[3])
-            line = "".join(prefix_list) + str(structure[locator])
+            line = "".join(prefix_list) + repr(structure[locator])
             lines_with_locator.append((locator, line))
         lines_with_locator.sort(key=lambda i: i[0])
         return "\n".join([i[1] for i in lines_with_locator])
