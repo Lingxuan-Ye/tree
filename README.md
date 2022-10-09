@@ -1,6 +1,6 @@
 # tree
 
-Draw the structure of an instance as well as 'tree' command in shell.
+Draw the structure of an instance like 'tree' command in shell.
 
 ## Notice
 
