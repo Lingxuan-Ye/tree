@@ -1,5 +1,10 @@
+#![no_std]
+
+extern crate alloc;
+
 pub use self::index::{Index, IndexRange};
 
+mod impls;
 mod index;
 
 pub trait CompleteTree<const N: usize> {

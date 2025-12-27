@@ -1,0 +1,131 @@
+use super::super::Index;
+use alloc::vec::Vec;
+use core::iter::FusedIterator;
+use core::marker::PhantomData;
+use core::ops::Range;
+
+#[derive(Debug, Clone)]
+pub struct TraversePostOrder<'a, const N: usize, T> {
+    tree: &'a [T],
+    len: usize,
+    stack: Vec<Frame<N>>,
+}
+
+impl<'a, const N: usize, T> TraversePostOrder<'a, N, T> {
+    pub fn new(tree: &'a [T]) -> Self {
+        let len = tree.len();
+        let mut stack = Vec::new();
+        if !tree.is_empty() {
+            let index = const { Index::<N>::root().to_flattened() };
+            let children = Index::<N>::root().iter_children().cap(len).to_flattened();
+            stack.push(Frame { index, children });
+        }
+        Self { tree, len, stack }
+    }
+}
+
+impl<'a, const N: usize, T> Iterator for TraversePostOrder<'a, N, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        while let Some(mut frame) = self.stack.pop() {
+            if let Some(child) = frame.children.next() {
+                self.stack.push(frame);
+                let grandchildren = Index::<N>::from_flattened(child)
+                    .iter_children()
+                    .cap(self.tree.len())
+                    .to_flattened();
+                self.stack.push(Frame {
+                    index: child,
+                    children: grandchildren,
+                });
+                continue;
+            }
+            self.len -= 1;
+            return Some(unsafe { self.tree.get_unchecked(frame.index) });
+        }
+        None
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.len, Some(self.len))
+    }
+}
+
+impl<const N: usize, T> ExactSizeIterator for TraversePostOrder<'_, N, T> {
+    fn len(&self) -> usize {
+        self.len
+    }
+}
+
+impl<const N: usize, T> FusedIterator for TraversePostOrder<'_, N, T> {}
+
+#[derive(Debug)]
+pub struct TraversePostOrderMut<'a, const N: usize, T> {
+    tree: *mut [T],
+    len: usize,
+    stack: Vec<Frame<N>>,
+    marker: PhantomData<&'a mut T>,
+}
+
+impl<'a, const N: usize, T> TraversePostOrderMut<'a, N, T> {
+    pub fn new(tree: &'a mut [T]) -> Self {
+        let tree = tree as *mut [T];
+        let len = tree.len();
+        let mut stack = Vec::new();
+        if !tree.is_empty() {
+            let index = const { Index::<N>::root().to_flattened() };
+            let children = Index::<N>::root().iter_children().cap(len).to_flattened();
+            stack.push(Frame { index, children });
+        }
+        let marker = PhantomData;
+        Self {
+            tree,
+            len,
+            stack,
+            marker,
+        }
+    }
+}
+
+impl<'a, const N: usize, T> Iterator for TraversePostOrderMut<'a, N, T> {
+    type Item = &'a mut T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        while let Some(mut frame) = self.stack.pop() {
+            if let Some(child) = frame.children.next() {
+                self.stack.push(frame);
+                let grandchildren = Index::<N>::from_flattened(child)
+                    .iter_children()
+                    .cap(self.tree.len())
+                    .to_flattened();
+                self.stack.push(Frame {
+                    index: child,
+                    children: grandchildren,
+                });
+                continue;
+            }
+            self.len -= 1;
+            return Some(unsafe { (&mut *self.tree).get_unchecked_mut(frame.index) });
+        }
+        None
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.len, Some(self.len))
+    }
+}
+
+impl<const N: usize, T> ExactSizeIterator for TraversePostOrderMut<'_, N, T> {
+    fn len(&self) -> usize {
+        self.len
+    }
+}
+
+impl<const N: usize, T> FusedIterator for TraversePostOrderMut<'_, N, T> {}
+
+#[derive(Debug, Clone)]
+struct Frame<const N: usize> {
+    index: usize,
+    children: Range<usize>,
+}
