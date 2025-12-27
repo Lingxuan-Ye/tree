@@ -4,6 +4,8 @@ extern crate alloc;
 
 pub use self::index::{Index, IndexRange};
 
+pub mod traverse;
+
 mod impls;
 mod index;
 
