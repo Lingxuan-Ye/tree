@@ -2,5 +2,10 @@
 name = "tree"
 version = "0.1.0"
 edition = "2024"
-
-[dependencies]
+authors = ["Lingxuan Ye <love@lingxuan.io>"]
+categories = ["data-structures", "no-std"]
+repository = "https://github.com/Lingxuan-Ye/tree"
+readme = "README.md"
+license = "MIT"
+publish = false
+description = "A highly untested complete tree library."
