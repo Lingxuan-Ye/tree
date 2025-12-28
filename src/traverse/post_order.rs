@@ -21,7 +21,8 @@ where
         if !tree.is_empty() {
             let index = Index::root();
             let children = index.iter_children().cap(tree.len());
-            stack.push(Frame { index, children });
+            let frame = Frame { index, children };
+            stack.push(frame);
         }
         Self { tree, stack }
     }
@@ -34,19 +35,22 @@ where
     type Item = &'a T::Node;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(mut frame) = self.stack.pop() {
+        loop {
+            let frame = self.stack.last_mut()?;
             if let Some(child) = frame.children.next() {
-                self.stack.push(frame);
                 let grandchildren = child.iter_children().cap(self.tree.len());
-                self.stack.push(Frame {
+                let frame = Frame {
                     index: child,
                     children: grandchildren,
-                });
+                };
+                self.stack.push(frame);
                 continue;
             }
+            let Some(frame) = self.stack.pop() else {
+                unreachable!()
+            };
             return self.tree.get(frame.index);
         }
-        None
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {

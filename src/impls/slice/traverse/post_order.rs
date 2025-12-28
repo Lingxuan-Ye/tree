@@ -19,7 +19,8 @@ impl<'a, const N: usize, T> TraversePostOrder<'a, N, T> {
                 .iter_children()
                 .cap(tree.len())
                 .to_flattened();
-            stack.push(Frame { index, children });
+            let frame = Frame { index, children };
+            stack.push(frame);
         }
         Self { tree, stack }
     }
@@ -29,22 +30,23 @@ impl<'a, const N: usize, T> Iterator for TraversePostOrder<'a, N, T> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(mut frame) = self.stack.pop() {
+        loop {
+            let frame = self.stack.last_mut()?;
             if let Some(child) = frame.children.next() {
-                self.stack.push(frame);
                 let grandchildren = Index::<N>::from_flattened(child)
                     .iter_children()
                     .cap(self.tree.len())
                     .to_flattened();
-                self.stack.push(Frame {
+                let frame = Frame {
                     index: child,
                     children: grandchildren,
-                });
+                };
+                self.stack.push(frame);
                 continue;
             }
+            let frame = unsafe { self.stack.pop().unwrap_unchecked() };
             return Some(unsafe { self.tree.get_unchecked(frame.index) });
         }
-        None
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -71,7 +73,8 @@ impl<'a, const N: usize, T> TraversePostOrderMut<'a, N, T> {
                 .iter_children()
                 .cap(tree.len())
                 .to_flattened();
-            stack.push(Frame { index, children });
+            let frame = Frame { index, children };
+            stack.push(frame);
         }
         let marker = PhantomData;
         Self {
@@ -86,22 +89,23 @@ impl<'a, const N: usize, T> Iterator for TraversePostOrderMut<'a, N, T> {
     type Item = &'a mut T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(mut frame) = self.stack.pop() {
+        loop {
+            let frame = self.stack.last_mut()?;
             if let Some(child) = frame.children.next() {
-                self.stack.push(frame);
                 let grandchildren = Index::<N>::from_flattened(child)
                     .iter_children()
                     .cap(self.tree.len())
                     .to_flattened();
-                self.stack.push(Frame {
+                let frame = Frame {
                     index: child,
                     children: grandchildren,
-                });
+                };
+                self.stack.push(frame);
                 continue;
             }
+            let frame = unsafe { self.stack.pop().unwrap_unchecked() };
             return Some(unsafe { (&mut *self.tree).get_unchecked_mut(frame.index) });
         }
-        None
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
