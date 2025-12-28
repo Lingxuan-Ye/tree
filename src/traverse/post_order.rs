@@ -9,7 +9,6 @@ where
     T: CompleteTree<N> + ?Sized,
 {
     tree: &'a T,
-    len: usize,
     stack: Vec<Frame<N>>,
 }
 
@@ -18,14 +17,13 @@ where
     T: CompleteTree<N> + ?Sized,
 {
     pub fn new(tree: &'a T) -> Self {
-        let len = tree.len();
         let mut stack = Vec::new();
         if !tree.is_empty() {
             let index = Index::root();
             let children = index.iter_children().cap(tree.len());
             stack.push(Frame { index, children });
         }
-        Self { tree, len, stack }
+        Self { tree, stack }
     }
 }
 
@@ -46,23 +44,13 @@ where
                 });
                 continue;
             }
-            self.len -= 1;
             return self.tree.get(frame.index);
         }
         None
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        (self.len, Some(self.len))
-    }
-}
-
-impl<const N: usize, T> ExactSizeIterator for TraversePostOrder<'_, N, T>
-where
-    T: CompleteTree<N> + ?Sized,
-{
-    fn len(&self) -> usize {
-        self.len
+        (self.stack.len(), Some(self.tree.len()))
     }
 }
 

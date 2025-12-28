@@ -9,7 +9,6 @@ where
     T: CompleteTree<2> + ?Sized,
 {
     tree: &'a T,
-    len: usize,
     stack: Vec<Index<2>>,
     state: State,
 }
@@ -19,19 +18,13 @@ where
     T: CompleteTree<2> + ?Sized,
 {
     pub fn new(tree: &'a T) -> Self {
-        let len = tree.len();
         let stack = Vec::new();
         let state = if tree.is_empty() {
             State::Done
         } else {
             State::Left(Index::root())
         };
-        Self {
-            tree,
-            len,
-            stack,
-            state,
-        }
+        Self { tree, stack, state }
     }
 }
 
@@ -51,7 +44,6 @@ where
                         self.stack.push(index);
                         self.state = State::Left(left_child);
                     } else {
-                        self.len -= 1;
                         self.state = State::Right(index);
                         return self.tree.get(index);
                     }
@@ -70,7 +62,6 @@ where
                 }
 
                 State::Pop => {
-                    self.len -= 1;
                     let Some(index) = self.stack.pop() else {
                         unreachable!()
                     };
@@ -86,16 +77,7 @@ where
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        (self.len, Some(self.len))
-    }
-}
-
-impl<T> ExactSizeIterator for TraverseInOrder<'_, T>
-where
-    T: CompleteTree<2> + ?Sized,
-{
-    fn len(&self) -> usize {
-        self.len
+        (self.stack.len(), Some(self.tree.len()))
     }
 }
 
