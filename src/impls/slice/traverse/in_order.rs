@@ -1,4 +1,4 @@
-use super::super::Index;
+use crate::Index;
 use alloc::vec::Vec;
 use core::iter::FusedIterator;
 use core::marker::PhantomData;

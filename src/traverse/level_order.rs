@@ -1,5 +1,4 @@
-use super::super::CompleteTree;
-use super::super::index::IndexRange;
+use crate::{CompleteTree, IndexRange};
 use core::iter::FusedIterator;
 
 #[derive(Debug, Clone)]

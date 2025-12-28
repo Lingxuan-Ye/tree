@@ -1,5 +1,4 @@
-use super::super::CompleteTree;
-use super::super::index::Index;
+use crate::{CompleteTree, Index};
 use alloc::vec::Vec;
 use core::iter::FusedIterator;
 
