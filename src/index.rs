@@ -105,19 +105,9 @@ impl<const N: usize> Index<N> {
             }
 
             2 => {
-                let mut depth = 0;
-                let count = loop {
-                    // This loop exits before `shift` underflows because `next_count`
-                    // will eventually reach `usize::MAX`, while `index < usize::MAX`
-                    // is guaranteed.
-                    let shift = const { usize::BITS as usize - 1 } - depth;
-                    let next_count = usize::MAX >> shift;
-                    if index < next_count {
-                        break next_count >> 1;
-                    }
-                    depth += 1;
-                };
-                let offset = index - count;
+                let next = index + 1;
+                let depth = (const { usize::BITS - 1 } - next.leading_zeros()) as usize;
+                let offset = next - (1 << depth);
                 Self { depth, offset }
             }
 
