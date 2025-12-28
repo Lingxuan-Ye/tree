@@ -20,7 +20,7 @@ where
         let state = if tree.is_empty() {
             State::Done
         } else {
-            State::Left(Index::root())
+            State::Push(Index::root())
         };
         let capacity = tree.height();
         let stack = Vec::with_capacity(capacity);
@@ -37,36 +37,29 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             match self.state {
-                State::Left(index) => {
+                State::Push(index) => {
                     if let Some(left_child) = index.left_child()
                         && left_child.to_flattened() < self.tree.len()
                     {
+                        self.state = State::Push(left_child);
                         self.stack.push(index);
-                        self.state = State::Left(left_child);
-                    } else {
-                        self.state = State::Right(index);
-                        return self.tree.get(index);
+                        continue;
                     }
-                }
-
-                State::Right(index) => {
-                    if let Some(right_child) = index.right_child()
-                        && right_child.to_flattened() < self.tree.len()
-                    {
-                        self.state = State::Left(right_child);
-                    } else if self.stack.is_empty() {
-                        self.state = State::Done
-                    } else {
-                        self.state = State::Pop
-                    }
+                    self.state = State::Pop;
+                    return self.tree.get(index);
                 }
 
                 State::Pop => {
-                    let Some(index) = self.stack.pop() else {
-                        unreachable!()
-                    };
-                    self.state = State::Right(index);
-                    return self.tree.get(index);
+                    if let Some(index) = self.stack.pop() {
+                        if let Some(right_child) = index.right_child()
+                            && right_child.to_flattened() < self.tree.len()
+                        {
+                            self.state = State::Push(right_child);
+                        }
+                        return self.tree.get(index);
+                    }
+                    self.state = State::Done;
+                    return None;
                 }
 
                 State::Done => {
@@ -85,8 +78,7 @@ impl<T> FusedIterator for TraverseInOrder<'_, T> where T: CompleteTree<2> + ?Siz
 
 #[derive(Debug, Clone)]
 enum State {
-    Left(Index<2>),
-    Right(Index<2>),
+    Push(Index<2>),
     Pop,
     Done,
 }

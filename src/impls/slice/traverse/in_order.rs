@@ -15,7 +15,7 @@ impl<'a, T> TraverseInOrder<'a, T> {
         let state = if tree.is_empty() {
             State::Done
         } else {
-            State::Left(Index::root())
+            State::Push(Index::root())
         };
         let capacity = CompleteTree::<2>::height(tree);
         let stack = Vec::with_capacity(capacity);
@@ -29,36 +29,31 @@ impl<'a, T> Iterator for TraverseInOrder<'a, T> {
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             match self.state {
-                State::Left(index) => {
+                State::Push(index) => {
                     if let Some(left_child) = index.left_child()
                         && left_child.to_flattened() < self.tree.len()
                     {
+                        self.state = State::Push(left_child);
                         self.stack.push(index);
-                        self.state = State::Left(left_child);
-                    } else {
-                        self.state = State::Right(index);
-                        let index = index.to_flattened();
-                        return Some(unsafe { self.tree.get_unchecked(index) });
+                        continue;
                     }
-                }
-
-                State::Right(index) => {
-                    if let Some(right_child) = index.right_child()
-                        && right_child.to_flattened() < self.tree.len()
-                    {
-                        self.state = State::Left(right_child);
-                    } else if self.stack.is_empty() {
-                        self.state = State::Done
-                    } else {
-                        self.state = State::Pop
-                    }
+                    self.state = State::Pop;
+                    let index = index.to_flattened();
+                    return Some(unsafe { self.tree.get_unchecked(index) });
                 }
 
                 State::Pop => {
-                    let index = unsafe { self.stack.pop().unwrap_unchecked() };
-                    self.state = State::Right(index);
-                    let index = index.to_flattened();
-                    return Some(unsafe { self.tree.get_unchecked(index) });
+                    if let Some(index) = self.stack.pop() {
+                        if let Some(right_child) = index.right_child()
+                            && right_child.to_flattened() < self.tree.len()
+                        {
+                            self.state = State::Push(right_child);
+                        }
+                        let index = index.to_flattened();
+                        return Some(unsafe { self.tree.get_unchecked(index) });
+                    }
+                    self.state = State::Done;
+                    return None;
                 }
 
                 State::Done => {
@@ -88,7 +83,7 @@ impl<'a, T> TraverseInOrderMut<'a, T> {
         let state = if tree.is_empty() {
             State::Done
         } else {
-            State::Left(Index::root())
+            State::Push(Index::root())
         };
         let capacity = CompleteTree::<2>::height(tree);
         let stack = Vec::with_capacity(capacity);
@@ -109,36 +104,31 @@ impl<'a, T> Iterator for TraverseInOrderMut<'a, T> {
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             match self.state {
-                State::Left(index) => {
+                State::Push(index) => {
                     if let Some(left_child) = index.left_child()
                         && left_child.to_flattened() < self.tree.len()
                     {
+                        self.state = State::Push(left_child);
                         self.stack.push(index);
-                        self.state = State::Left(left_child);
-                    } else {
-                        self.state = State::Right(index);
-                        let index = index.to_flattened();
-                        return Some(unsafe { (&mut *self.tree).get_unchecked_mut(index) });
+                        continue;
                     }
-                }
-
-                State::Right(index) => {
-                    if let Some(right_child) = index.right_child()
-                        && right_child.to_flattened() < self.tree.len()
-                    {
-                        self.state = State::Left(right_child);
-                    } else if self.stack.is_empty() {
-                        self.state = State::Done
-                    } else {
-                        self.state = State::Pop
-                    }
+                    self.state = State::Pop;
+                    let index = index.to_flattened();
+                    return Some(unsafe { (&mut *self.tree).get_unchecked_mut(index) });
                 }
 
                 State::Pop => {
-                    let index = unsafe { self.stack.pop().unwrap_unchecked() };
-                    self.state = State::Right(index);
-                    let index = index.to_flattened();
-                    return Some(unsafe { (&mut *self.tree).get_unchecked_mut(index) });
+                    if let Some(index) = self.stack.pop() {
+                        if let Some(right_child) = index.right_child()
+                            && right_child.to_flattened() < self.tree.len()
+                        {
+                            self.state = State::Push(right_child);
+                        }
+                        let index = index.to_flattened();
+                        return Some(unsafe { (&mut *self.tree).get_unchecked_mut(index) });
+                    }
+                    self.state = State::Done;
+                    return None;
                 }
 
                 State::Done => {
@@ -157,8 +147,7 @@ impl<T> FusedIterator for TraverseInOrderMut<'_, T> {}
 
 #[derive(Debug, Clone)]
 enum State {
-    Left(Index<2>),
-    Right(Index<2>),
+    Push(Index<2>),
     Pop,
     Done,
 }
