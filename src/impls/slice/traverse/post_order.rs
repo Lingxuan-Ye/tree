@@ -5,13 +5,13 @@ use core::marker::PhantomData;
 use core::ops::Range;
 
 #[derive(Debug, Clone)]
-pub struct TraversePostOrder<'a, const N: usize, T> {
+pub(in super::super) struct TraversePostOrder<'a, const N: usize, T> {
     stack: Vec<Frame<N>>,
     tree: &'a [T],
 }
 
 impl<'a, const N: usize, T> TraversePostOrder<'a, N, T> {
-    pub fn new(tree: &'a [T]) -> Self {
+    pub(in super::super) fn new(tree: &'a [T]) -> Self {
         let capacity = CompleteTree::<N>::height(tree) + 1;
         let mut stack = Vec::with_capacity(capacity);
         if !tree.is_empty() {
@@ -58,14 +58,14 @@ impl<'a, const N: usize, T> Iterator for TraversePostOrder<'a, N, T> {
 impl<const N: usize, T> FusedIterator for TraversePostOrder<'_, N, T> {}
 
 #[derive(Debug)]
-pub struct TraversePostOrderMut<'a, const N: usize, T> {
+pub(in super::super) struct TraversePostOrderMut<'a, const N: usize, T> {
     stack: Vec<Frame<N>>,
     tree: *mut [T],
     marker: PhantomData<&'a mut T>,
 }
 
 impl<'a, const N: usize, T> TraversePostOrderMut<'a, N, T> {
-    pub fn new(tree: &'a mut [T]) -> Self {
+    pub(in super::super) fn new(tree: &'a mut [T]) -> Self {
         let capacity = CompleteTree::<N>::height(tree) + 1;
         let mut stack = Vec::with_capacity(capacity);
         if !tree.is_empty() {

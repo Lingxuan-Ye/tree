@@ -1,10 +1,9 @@
-use self::traverse::{
-    TraverseInOrder, TraverseInOrderMut, TraversePostOrder, TraversePostOrderMut, TraversePreOrder,
-    TraversePreOrderMut,
-};
+use self::traverse::in_order::{TraverseInOrder, TraverseInOrderMut};
+use self::traverse::post_order::{TraversePostOrder, TraversePostOrderMut};
+use self::traverse::pre_order::{TraversePreOrder, TraversePreOrderMut};
 use crate::{CompleteBinaryTree, CompleteTree, Index, IndexRange};
 
-pub mod traverse;
+mod traverse;
 
 impl<const N: usize, T> CompleteTree<N> for [T] {
     type Node = T;

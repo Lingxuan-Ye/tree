@@ -4,13 +4,13 @@ use core::iter::FusedIterator;
 use core::marker::PhantomData;
 
 #[derive(Debug, Clone)]
-pub struct TraversePreOrder<'a, const N: usize, T> {
+pub(in super::super) struct TraversePreOrder<'a, const N: usize, T> {
     stack: Vec<usize>,
     tree: &'a [T],
 }
 
 impl<'a, const N: usize, T> TraversePreOrder<'a, N, T> {
-    pub fn new(tree: &'a [T]) -> Self {
+    pub(in super::super) fn new(tree: &'a [T]) -> Self {
         let capacity = CompleteTree::<N>::height(tree)
             .saturating_mul(N - 1)
             .saturating_add(1);
@@ -45,14 +45,14 @@ impl<'a, const N: usize, T> Iterator for TraversePreOrder<'a, N, T> {
 impl<const N: usize, T> FusedIterator for TraversePreOrder<'_, N, T> {}
 
 #[derive(Debug)]
-pub struct TraversePreOrderMut<'a, const N: usize, T> {
+pub(in super::super) struct TraversePreOrderMut<'a, const N: usize, T> {
     stack: Vec<usize>,
     tree: *mut [T],
     marker: PhantomData<&'a mut T>,
 }
 
 impl<'a, const N: usize, T> TraversePreOrderMut<'a, N, T> {
-    pub fn new(tree: &'a mut [T]) -> Self {
+    pub(in super::super) fn new(tree: &'a mut [T]) -> Self {
         let capacity = CompleteTree::<N>::height(tree)
             .saturating_mul(N - 1)
             .saturating_add(1);
