@@ -16,7 +16,8 @@ where
     T: CompleteTree<N> + ?Sized,
 {
     pub fn new(tree: &'a T) -> Self {
-        let mut stack = Vec::new();
+        let capacity = tree.height() + 1;
+        let mut stack = Vec::with_capacity(capacity);
         if !tree.is_empty() {
             let index = Index::root();
             let children = index.iter_children().cap(tree.len());

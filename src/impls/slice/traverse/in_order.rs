@@ -1,4 +1,4 @@
-use crate::Index;
+use crate::{CompleteTree, Index};
 use alloc::vec::Vec;
 use core::iter::FusedIterator;
 use core::marker::PhantomData;
@@ -17,7 +17,8 @@ impl<'a, T> TraverseInOrder<'a, T> {
         } else {
             State::Left(Index::root())
         };
-        let stack = Vec::new();
+        let capacity = CompleteTree::<2>::height(tree);
+        let stack = Vec::with_capacity(capacity);
         Self { state, stack, tree }
     }
 }
@@ -89,7 +90,8 @@ impl<'a, T> TraverseInOrderMut<'a, T> {
         } else {
             State::Left(Index::root())
         };
-        let stack = Vec::new();
+        let capacity = CompleteTree::<2>::height(tree);
+        let stack = Vec::with_capacity(capacity);
         let tree = tree as *mut [T];
         let marker = PhantomData;
         Self {

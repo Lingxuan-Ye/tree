@@ -22,7 +22,8 @@ where
         } else {
             State::Left(Index::root())
         };
-        let stack = Vec::new();
+        let capacity = tree.height();
+        let stack = Vec::with_capacity(capacity);
         Self { state, stack, tree }
     }
 }

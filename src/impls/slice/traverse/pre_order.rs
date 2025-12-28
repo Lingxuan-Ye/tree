@@ -1,4 +1,4 @@
-use crate::Index;
+use crate::{CompleteTree, Index};
 use alloc::vec::Vec;
 use core::iter::FusedIterator;
 use core::marker::PhantomData;
@@ -11,7 +11,10 @@ pub struct TraversePreOrder<'a, const N: usize, T> {
 
 impl<'a, const N: usize, T> TraversePreOrder<'a, N, T> {
     pub fn new(tree: &'a [T]) -> Self {
-        let mut stack = Vec::new();
+        let capacity = CompleteTree::<N>::height(tree)
+            .saturating_mul(N - 1)
+            .saturating_add(1);
+        let mut stack = Vec::with_capacity(capacity);
         if !tree.is_empty() {
             stack.push(const { Index::<N>::root().to_flattened() });
         }
@@ -50,7 +53,10 @@ pub struct TraversePreOrderMut<'a, const N: usize, T> {
 
 impl<'a, const N: usize, T> TraversePreOrderMut<'a, N, T> {
     pub fn new(tree: &'a mut [T]) -> Self {
-        let mut stack = Vec::new();
+        let capacity = CompleteTree::<N>::height(tree)
+            .saturating_mul(N - 1)
+            .saturating_add(1);
+        let mut stack = Vec::with_capacity(capacity);
         if !tree.is_empty() {
             stack.push(const { Index::<N>::root().to_flattened() });
         }
