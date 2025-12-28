@@ -6,8 +6,8 @@ use core::ops::Range;
 
 #[derive(Debug, Clone)]
 pub struct TraversePostOrder<'a, const N: usize, T> {
-    tree: &'a [T],
     stack: Vec<Frame<N>>,
+    tree: &'a [T],
 }
 
 impl<'a, const N: usize, T> TraversePostOrder<'a, N, T> {
@@ -22,7 +22,7 @@ impl<'a, const N: usize, T> TraversePostOrder<'a, N, T> {
             let frame = Frame { index, children };
             stack.push(frame);
         }
-        Self { tree, stack }
+        Self { stack, tree }
     }
 }
 
@@ -58,14 +58,13 @@ impl<const N: usize, T> FusedIterator for TraversePostOrder<'_, N, T> {}
 
 #[derive(Debug)]
 pub struct TraversePostOrderMut<'a, const N: usize, T> {
-    tree: *mut [T],
     stack: Vec<Frame<N>>,
+    tree: *mut [T],
     marker: PhantomData<&'a mut T>,
 }
 
 impl<'a, const N: usize, T> TraversePostOrderMut<'a, N, T> {
     pub fn new(tree: &'a mut [T]) -> Self {
-        let tree = tree as *mut [T];
         let mut stack = Vec::new();
         if !tree.is_empty() {
             let index = const { Index::<N>::root().to_flattened() };
@@ -76,10 +75,11 @@ impl<'a, const N: usize, T> TraversePostOrderMut<'a, N, T> {
             let frame = Frame { index, children };
             stack.push(frame);
         }
+        let tree = tree as *mut [T];
         let marker = PhantomData;
         Self {
-            tree,
             stack,
+            tree,
             marker,
         }
     }

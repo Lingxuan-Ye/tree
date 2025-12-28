@@ -7,9 +7,9 @@ pub struct TraverseInOrder<'a, T>
 where
     T: CompleteTree<2> + ?Sized,
 {
-    tree: &'a T,
-    stack: Vec<Index<2>>,
     state: State,
+    stack: Vec<Index<2>>,
+    tree: &'a T,
 }
 
 impl<'a, T> TraverseInOrder<'a, T>
@@ -17,13 +17,13 @@ where
     T: CompleteTree<2> + ?Sized,
 {
     pub fn new(tree: &'a T) -> Self {
-        let stack = Vec::new();
         let state = if tree.is_empty() {
             State::Done
         } else {
             State::Left(Index::root())
         };
-        Self { tree, stack, state }
+        let stack = Vec::new();
+        Self { state, stack, tree }
     }
 }
 

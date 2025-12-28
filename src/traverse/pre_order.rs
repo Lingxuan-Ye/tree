@@ -7,8 +7,8 @@ pub struct TraversePreOrder<'a, const N: usize, T>
 where
     T: CompleteTree<N> + ?Sized,
 {
-    tree: &'a T,
     stack: Vec<Index<N>>,
+    tree: &'a T,
 }
 
 impl<'a, const N: usize, T> TraversePreOrder<'a, N, T>
@@ -20,7 +20,7 @@ where
         if !tree.is_empty() {
             stack.push(Index::root());
         }
-        Self { tree, stack }
+        Self { stack, tree }
     }
 }
 

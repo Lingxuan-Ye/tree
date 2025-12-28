@@ -5,8 +5,8 @@ use core::marker::PhantomData;
 
 #[derive(Debug, Clone)]
 pub struct TraversePreOrder<'a, const N: usize, T> {
-    tree: &'a [T],
     stack: Vec<usize>,
+    tree: &'a [T],
 }
 
 impl<'a, const N: usize, T> TraversePreOrder<'a, N, T> {
@@ -15,7 +15,7 @@ impl<'a, const N: usize, T> TraversePreOrder<'a, N, T> {
         if !tree.is_empty() {
             stack.push(const { Index::<N>::root().to_flattened() });
         }
-        Self { tree, stack }
+        Self { stack, tree }
     }
 }
 
@@ -43,22 +43,22 @@ impl<const N: usize, T> FusedIterator for TraversePreOrder<'_, N, T> {}
 
 #[derive(Debug)]
 pub struct TraversePreOrderMut<'a, const N: usize, T> {
-    tree: *mut [T],
     stack: Vec<usize>,
+    tree: *mut [T],
     marker: PhantomData<&'a mut T>,
 }
 
 impl<'a, const N: usize, T> TraversePreOrderMut<'a, N, T> {
     pub fn new(tree: &'a mut [T]) -> Self {
-        let tree = tree as *mut [T];
         let mut stack = Vec::new();
         if !tree.is_empty() {
             stack.push(const { Index::<N>::root().to_flattened() });
         }
+        let tree = tree as *mut [T];
         let marker = PhantomData;
         Self {
-            tree,
             stack,
+            tree,
             marker,
         }
     }

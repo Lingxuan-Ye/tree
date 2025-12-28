@@ -7,8 +7,8 @@ pub struct TraversePostOrder<'a, const N: usize, T>
 where
     T: CompleteTree<N> + ?Sized,
 {
-    tree: &'a T,
     stack: Vec<Frame<N>>,
+    tree: &'a T,
 }
 
 impl<'a, const N: usize, T> TraversePostOrder<'a, N, T>
@@ -23,7 +23,7 @@ where
             let frame = Frame { index, children };
             stack.push(frame);
         }
-        Self { tree, stack }
+        Self { stack, tree }
     }
 }
 

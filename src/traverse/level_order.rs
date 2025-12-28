@@ -6,8 +6,8 @@ pub struct TraverseLevelOrder<'a, const N: usize, T>
 where
     T: CompleteTree<N> + ?Sized,
 {
-    tree: &'a T,
     range: IndexRange<N>,
+    tree: &'a T,
 }
 
 impl<'a, const N: usize, T> TraverseLevelOrder<'a, N, T>
@@ -16,7 +16,7 @@ where
 {
     pub fn new(tree: &'a T) -> Self {
         let range = IndexRange::from_flattened(0..tree.len());
-        Self { tree, range }
+        Self { range, tree }
     }
 }
 
