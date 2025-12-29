@@ -46,7 +46,7 @@ where
                         continue;
                     }
                     self.state = State::Pop;
-                    return self.tree.get(index);
+                    return self.tree.node(index);
                 }
 
                 State::Pop => {
@@ -56,7 +56,7 @@ where
                         {
                             self.state = State::Push(right_child);
                         }
-                        return self.tree.get(index);
+                        return self.tree.node(index);
                     }
                     self.state = State::Done;
                     return None;

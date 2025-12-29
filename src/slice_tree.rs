@@ -9,11 +9,11 @@ pub mod traverse;
 pub struct SliceTree<const N: usize, T>([T]);
 
 impl<const N: usize, T> SliceTree<N, T> {
-    pub const fn new(slice: &[T]) -> &Self {
+    pub const fn from_slice(slice: &[T]) -> &Self {
         unsafe { mem::transmute(slice) }
     }
 
-    pub const fn new_mut(slice: &mut [T]) -> &mut Self {
+    pub const fn from_slice_mut(slice: &mut [T]) -> &mut Self {
         unsafe { mem::transmute(slice) }
     }
 
@@ -25,11 +25,11 @@ impl<const N: usize, T> SliceTree<N, T> {
         self.len() == 0
     }
 
-    pub const fn as_slice(&self) -> &[T] {
+    pub const fn as_ref(&self) -> &[T] {
         &self.0
     }
 
-    pub const fn as_mut_slice(&mut self) -> &mut [T] {
+    pub const fn as_mut(&mut self) -> &mut [T] {
         &mut self.0
     }
 }
@@ -38,74 +38,74 @@ impl<const N: usize, T> CompleteTree<N> for SliceTree<N, T> {
     type Node = T;
 
     fn len(&self) -> usize {
-        CompleteTree::<N>::len(self.as_slice())
+        CompleteTree::<N>::len(self.as_ref())
     }
 
-    fn get(&self, index: Index<N>) -> Option<&Self::Node> {
-        CompleteTree::<N>::get(self.as_slice(), index)
+    fn node(&self, index: Index<N>) -> Option<&Self::Node> {
+        CompleteTree::<N>::node(self.as_ref(), index)
     }
 
-    fn get_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node> {
-        CompleteTree::<N>::get_mut(self.as_mut_slice(), index)
+    fn node_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node> {
+        CompleteTree::<N>::node_mut(self.as_mut(), index)
     }
 
     fn iter_children(
         &self,
         index: Index<N>,
     ) -> Option<impl DoubleEndedIterator<Item = &Self::Node>> {
-        CompleteTree::<N>::iter_children(self.as_slice(), index)
+        CompleteTree::<N>::iter_children(self.as_ref(), index)
     }
 
     fn iter_children_mut(
         &mut self,
         index: Index<N>,
     ) -> Option<impl DoubleEndedIterator<Item = &mut Self::Node>> {
-        CompleteTree::<N>::iter_children_mut(self.as_mut_slice(), index)
+        CompleteTree::<N>::iter_children_mut(self.as_mut(), index)
     }
 
     fn iter_level(&self, depth: usize) -> Option<impl DoubleEndedIterator<Item = &Self::Node>> {
-        CompleteTree::<N>::iter_level(self.as_slice(), depth)
+        CompleteTree::<N>::iter_level(self.as_ref(), depth)
     }
 
     fn iter_level_mut(
         &mut self,
         depth: usize,
     ) -> Option<impl DoubleEndedIterator<Item = &mut Self::Node>> {
-        CompleteTree::<N>::iter_level_mut(self.as_mut_slice(), depth)
+        CompleteTree::<N>::iter_level_mut(self.as_mut(), depth)
     }
 
     fn traverse_level_order(&self) -> impl DoubleEndedIterator<Item = &Self::Node> {
-        CompleteTree::<N>::traverse_level_order(self.as_slice())
+        CompleteTree::<N>::traverse_level_order(self.as_ref())
     }
 
     fn traverse_level_order_mut(&mut self) -> impl DoubleEndedIterator<Item = &mut Self::Node> {
-        CompleteTree::<N>::traverse_level_order_mut(self.as_mut_slice())
+        CompleteTree::<N>::traverse_level_order_mut(self.as_mut())
     }
 
     fn traverse_pre_order(&self) -> impl Iterator<Item = &Self::Node> {
-        CompleteTree::<N>::traverse_pre_order(self.as_slice())
+        CompleteTree::<N>::traverse_pre_order(self.as_ref())
     }
 
     fn traverse_pre_order_mut(&mut self) -> impl Iterator<Item = &mut Self::Node> {
-        CompleteTree::<N>::traverse_pre_order_mut(self.as_mut_slice())
+        CompleteTree::<N>::traverse_pre_order_mut(self.as_mut())
     }
 
     fn traverse_post_order(&self) -> impl Iterator<Item = &Self::Node> {
-        CompleteTree::<N>::traverse_post_order(self.as_slice())
+        CompleteTree::<N>::traverse_post_order(self.as_ref())
     }
 
     fn traverse_post_order_mut(&mut self) -> impl Iterator<Item = &mut Self::Node> {
-        CompleteTree::<N>::traverse_post_order_mut(self.as_mut_slice())
+        CompleteTree::<N>::traverse_post_order_mut(self.as_mut())
     }
 }
 
 impl<T> CompleteBinaryTree for SliceTree<2, T> {
     fn traverse_in_order(&self) -> impl Iterator<Item = &Self::Node> {
-        CompleteBinaryTree::traverse_in_order(self.as_slice())
+        CompleteBinaryTree::traverse_in_order(self.as_ref())
     }
 
     fn traverse_in_order_mut(&mut self) -> impl Iterator<Item = &mut Self::Node> {
-        CompleteBinaryTree::traverse_in_order_mut(self.as_mut_slice())
+        CompleteBinaryTree::traverse_in_order_mut(self.as_mut())
     }
 }
 
@@ -116,12 +116,12 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
         self.len()
     }
 
-    fn get(&self, index: Index<N>) -> Option<&Self::Node> {
+    fn node(&self, index: Index<N>) -> Option<&Self::Node> {
         let index = index.to_flattened();
         self.get(index)
     }
 
-    fn get_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node> {
+    fn node_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node> {
         let index = index.to_flattened();
         self.get_mut(index)
     }

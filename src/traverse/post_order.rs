@@ -49,7 +49,7 @@ where
             let Some(frame) = self.stack.pop() else {
                 unreachable!()
             };
-            return self.tree.get(frame.index);
+            return self.tree.node(frame.index);
         }
     }
 

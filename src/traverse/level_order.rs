@@ -28,7 +28,7 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         let index = self.range.next()?;
-        self.tree.get(index)
+        self.tree.node(index)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -52,7 +52,7 @@ where
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         let index = self.range.next_back()?;
-        self.tree.get(index)
+        self.tree.node(index)
     }
 }
 

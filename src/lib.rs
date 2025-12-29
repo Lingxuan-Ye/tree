@@ -5,9 +5,9 @@ extern crate alloc;
 pub use self::index::{Index, IndexRange};
 pub use self::slice_tree::SliceTree;
 
-pub mod traverse;
 pub mod index;
 pub mod slice_tree;
+pub mod traverse;
 
 pub trait CompleteTree<const N: usize> {
     type Node;
@@ -23,48 +23,48 @@ pub trait CompleteTree<const N: usize> {
         Index::<N>::from_flattened(index).depth()
     }
 
-    fn get(&self, index: Index<N>) -> Option<&Self::Node>;
+    fn node(&self, index: Index<N>) -> Option<&Self::Node>;
 
-    fn get_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node>;
+    fn node_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node>;
 
-    fn get_parent(&self, index: Index<N>) -> Option<&Self::Node> {
+    fn parent(&self, index: Index<N>) -> Option<&Self::Node> {
         let index = index.parent()?;
-        self.get(index)
+        self.node(index)
     }
 
-    fn get_parent_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node> {
+    fn parent_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node> {
         let index = index.parent()?;
-        self.get_mut(index)
+        self.node_mut(index)
     }
 
-    fn get_left_most_child(&self, index: Index<N>) -> Option<&Self::Node> {
-        let index = index.left_most_child()?;
-        self.get(index)
+    fn first_child(&self, index: Index<N>) -> Option<&Self::Node> {
+        let index = index.first_child()?;
+        self.node(index)
     }
 
-    fn get_left_most_child_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node> {
-        let index = index.left_most_child()?;
-        self.get_mut(index)
+    fn first_child_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node> {
+        let index = index.first_child()?;
+        self.node_mut(index)
     }
 
-    fn get_right_most_child(&self, index: Index<N>) -> Option<&Self::Node> {
-        let index = index.right_most_child()?;
-        self.get(index)
+    fn last_child(&self, index: Index<N>) -> Option<&Self::Node> {
+        let index = index.last_child()?;
+        self.node(index)
     }
 
-    fn get_right_most_child_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node> {
-        let index = index.right_most_child()?;
-        self.get_mut(index)
+    fn last_child_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node> {
+        let index = index.last_child()?;
+        self.node_mut(index)
     }
 
-    fn get_nth_child(&self, index: Index<N>, n: usize) -> Option<&Self::Node> {
-        let index = index.nth_child(n)?;
-        self.get(index)
+    fn child(&self, index: Index<N>, n: usize) -> Option<&Self::Node> {
+        let index = index.child(n)?;
+        self.node(index)
     }
 
-    fn get_nth_child_mut(&mut self, index: Index<N>, n: usize) -> Option<&mut Self::Node> {
-        let index = index.nth_child(n)?;
-        self.get_mut(index)
+    fn child_mut(&mut self, index: Index<N>, n: usize) -> Option<&mut Self::Node> {
+        let index = index.child(n)?;
+        self.node_mut(index)
     }
 
     fn iter_children(
@@ -75,7 +75,7 @@ pub trait CompleteTree<const N: usize> {
             return None;
         }
         let children = index.iter_children();
-        Some(children.flat_map(|index| self.get(index)))
+        Some(children.flat_map(|index| self.node(index)))
     }
 
     fn iter_children_mut(
@@ -88,7 +88,7 @@ pub trait CompleteTree<const N: usize> {
             return None;
         }
         let level = IndexRange::<N>::level(depth);
-        Some(level.flat_map(|index| self.get(index)))
+        Some(level.flat_map(|index| self.node(index)))
     }
 
     fn iter_level_mut(
@@ -110,20 +110,20 @@ pub trait CompleteTree<const N: usize> {
 }
 
 pub trait CompleteBinaryTree: CompleteTree<2> {
-    fn get_left_child(&self, index: Index<2>) -> Option<&Self::Node> {
-        self.get_left_most_child(index)
+    fn left_child(&self, index: Index<2>) -> Option<&Self::Node> {
+        self.first_child(index)
     }
 
-    fn get_left_child_mut(&mut self, index: Index<2>) -> Option<&mut Self::Node> {
-        self.get_left_most_child_mut(index)
+    fn left_child_mut(&mut self, index: Index<2>) -> Option<&mut Self::Node> {
+        self.first_child_mut(index)
     }
 
-    fn get_right_child(&self, index: Index<2>) -> Option<&Self::Node> {
-        self.get_right_most_child(index)
+    fn right_child(&self, index: Index<2>) -> Option<&Self::Node> {
+        self.last_child(index)
     }
 
-    fn get_right_child_mut(&mut self, index: Index<2>) -> Option<&mut Self::Node> {
-        self.get_right_most_child_mut(index)
+    fn right_child_mut(&mut self, index: Index<2>) -> Option<&mut Self::Node> {
+        self.last_child_mut(index)
     }
 
     fn traverse_in_order(&self) -> impl Iterator<Item = &Self::Node>;

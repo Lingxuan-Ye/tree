@@ -11,6 +11,14 @@ impl<const N: usize> Index<N> {
     pub const MIN: Self = Self::from_flattened(usize::MIN);
     pub const MAX: Self = Self::from_flattened(usize::MAX - 1);
 
+    pub const fn depth(&self) -> usize {
+        self.depth
+    }
+
+    pub const fn offset(&self) -> usize {
+        self.offset
+    }
+
     pub const fn new(depth: usize, offset: usize) -> Option<Self> {
         if depth < Self::MAX.depth && offset < N.pow(depth as u32)
             || (depth == Self::MAX.depth && offset <= Self::MAX.offset)
@@ -25,14 +33,6 @@ impl<const N: usize> Index<N> {
         Self::MIN
     }
 
-    pub const fn depth(&self) -> usize {
-        self.depth
-    }
-
-    pub const fn offset(&self) -> usize {
-        self.offset
-    }
-
     pub const fn parent(&self) -> Option<Self> {
         if self.depth == Self::root().depth {
             return None;
@@ -43,15 +43,15 @@ impl<const N: usize> Index<N> {
         Some(Self { depth, offset })
     }
 
-    pub const fn left_most_child(&self) -> Option<Self> {
-        self.nth_child(0)
+    pub const fn first_child(&self) -> Option<Self> {
+        self.child(0)
     }
 
-    pub const fn right_most_child(&self) -> Option<Self> {
-        self.nth_child(N - 1)
+    pub const fn last_child(&self) -> Option<Self> {
+        self.child(N - 1)
     }
 
-    pub const fn nth_child(&self, n: usize) -> Option<Self> {
+    pub const fn child(&self, n: usize) -> Option<Self> {
         if n >= N || self.depth == Self::MAX.depth {
             return None;
         }
@@ -155,11 +155,11 @@ impl<const N: usize> Index<N> {
 
 impl Index<2> {
     pub const fn left_child(&self) -> Option<Self> {
-        self.left_most_child()
+        self.first_child()
     }
 
     pub const fn right_child(&self) -> Option<Self> {
-        self.right_most_child()
+        self.last_child()
     }
 }
 
@@ -167,6 +167,14 @@ impl Index<2> {
 pub struct IndexRange<const N: usize>(Range<usize>);
 
 impl<const N: usize> IndexRange<N> {
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
     pub const fn empty() -> Self {
         Self::from_flattened(0..0)
     }
@@ -192,14 +200,6 @@ impl<const N: usize> IndexRange<N> {
         let start = Index::<N> { depth, offset: 0 }.to_flattened();
         let end = start + N.pow(depth as u32);
         Self::from_flattened(start..end)
-    }
-
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
     }
 
     pub const fn cap(mut self, max: usize) -> Self {

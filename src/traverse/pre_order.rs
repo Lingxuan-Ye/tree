@@ -37,7 +37,7 @@ where
         for child in children.rev() {
             self.stack.push(Index::<N>::from_flattened(child));
         }
-        self.tree.get(index)
+        self.tree.node(index)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
