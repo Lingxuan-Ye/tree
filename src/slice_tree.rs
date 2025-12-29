@@ -1,6 +1,7 @@
 use self::traverse::{InOrder, InOrderMut, PostOrder, PostOrderMut, PreOrder, PreOrderMut};
 use crate::{CompleteBinaryTree, CompleteTree, Index, IndexRange};
 use core::mem;
+use core::slice::{Iter, IterMut};
 
 pub mod traverse;
 
@@ -37,6 +38,56 @@ impl<const N: usize, T> SliceTree<N, T> {
 impl<const N: usize, T> CompleteTree<N> for SliceTree<N, T> {
     type Node = T;
 
+    type IterChildren<'a>
+        = Iter<'a, T>
+    where
+        Self: 'a;
+
+    type IterChildrenMut<'a>
+        = IterMut<'a, T>
+    where
+        Self: 'a;
+
+    type IterLevel<'a>
+        = Iter<'a, T>
+    where
+        Self: 'a;
+
+    type IterLevelMut<'a>
+        = IterMut<'a, T>
+    where
+        Self: 'a;
+
+    type LevelOrder<'a>
+        = Iter<'a, T>
+    where
+        Self: 'a;
+
+    type LevelOrderMut<'a>
+        = IterMut<'a, T>
+    where
+        Self: 'a;
+
+    type PreOrder<'a>
+        = PreOrder<'a, N, T>
+    where
+        Self: 'a;
+
+    type PreOrderMut<'a>
+        = PreOrderMut<'a, N, T>
+    where
+        Self: 'a;
+
+    type PostOrder<'a>
+        = PostOrder<'a, N, T>
+    where
+        Self: 'a;
+
+    type PostOrderMut<'a>
+        = PostOrderMut<'a, N, T>
+    where
+        Self: 'a;
+
     fn len(&self) -> usize {
         CompleteTree::<N>::len(self.as_ref())
     }
@@ -49,68 +100,119 @@ impl<const N: usize, T> CompleteTree<N> for SliceTree<N, T> {
         CompleteTree::<N>::node_mut(self.as_mut(), index)
     }
 
-    fn iter_children(
-        &self,
-        index: Index<N>,
-    ) -> Option<impl DoubleEndedIterator<Item = &Self::Node>> {
+    fn iter_children(&self, index: Index<N>) -> Option<Self::IterChildren<'_>> {
         CompleteTree::<N>::iter_children(self.as_ref(), index)
     }
 
-    fn iter_children_mut(
-        &mut self,
-        index: Index<N>,
-    ) -> Option<impl DoubleEndedIterator<Item = &mut Self::Node>> {
+    fn iter_children_mut(&mut self, index: Index<N>) -> Option<Self::IterChildrenMut<'_>> {
         CompleteTree::<N>::iter_children_mut(self.as_mut(), index)
     }
 
-    fn iter_level(&self, depth: usize) -> Option<impl DoubleEndedIterator<Item = &Self::Node>> {
+    fn iter_level(&self, depth: usize) -> Option<Self::IterLevel<'_>> {
         CompleteTree::<N>::iter_level(self.as_ref(), depth)
     }
 
-    fn iter_level_mut(
-        &mut self,
-        depth: usize,
-    ) -> Option<impl DoubleEndedIterator<Item = &mut Self::Node>> {
+    fn iter_level_mut(&mut self, depth: usize) -> Option<Self::IterLevelMut<'_>> {
         CompleteTree::<N>::iter_level_mut(self.as_mut(), depth)
     }
 
-    fn traverse_level_order(&self) -> impl DoubleEndedIterator<Item = &Self::Node> {
+    fn traverse_level_order(&self) -> Self::LevelOrder<'_> {
         CompleteTree::<N>::traverse_level_order(self.as_ref())
     }
 
-    fn traverse_level_order_mut(&mut self) -> impl DoubleEndedIterator<Item = &mut Self::Node> {
+    fn traverse_level_order_mut(&mut self) -> Self::LevelOrderMut<'_> {
         CompleteTree::<N>::traverse_level_order_mut(self.as_mut())
     }
 
-    fn traverse_pre_order(&self) -> impl Iterator<Item = &Self::Node> {
+    fn traverse_pre_order(&self) -> Self::PreOrder<'_> {
         CompleteTree::<N>::traverse_pre_order(self.as_ref())
     }
 
-    fn traverse_pre_order_mut(&mut self) -> impl Iterator<Item = &mut Self::Node> {
+    fn traverse_pre_order_mut(&mut self) -> Self::PreOrderMut<'_> {
         CompleteTree::<N>::traverse_pre_order_mut(self.as_mut())
     }
 
-    fn traverse_post_order(&self) -> impl Iterator<Item = &Self::Node> {
+    fn traverse_post_order(&self) -> Self::PostOrder<'_> {
         CompleteTree::<N>::traverse_post_order(self.as_ref())
     }
 
-    fn traverse_post_order_mut(&mut self) -> impl Iterator<Item = &mut Self::Node> {
+    fn traverse_post_order_mut(&mut self) -> Self::PostOrderMut<'_> {
         CompleteTree::<N>::traverse_post_order_mut(self.as_mut())
     }
 }
 
 impl<T> CompleteBinaryTree for SliceTree<2, T> {
-    fn traverse_in_order(&self) -> impl Iterator<Item = &Self::Node> {
+    type InOrder<'a>
+        = InOrder<'a, T>
+    where
+        Self: 'a;
+
+    type InOrderMut<'a>
+        = InOrderMut<'a, T>
+    where
+        Self: 'a;
+
+    fn traverse_in_order(&self) -> InOrder<'_, T> {
         CompleteBinaryTree::traverse_in_order(self.as_ref())
     }
 
-    fn traverse_in_order_mut(&mut self) -> impl Iterator<Item = &mut Self::Node> {
+    fn traverse_in_order_mut(&mut self) -> InOrderMut<'_, T> {
         CompleteBinaryTree::traverse_in_order_mut(self.as_mut())
     }
 }
 
 impl<const N: usize, T> CompleteTree<N> for [T] {
     type Node = T;
+
+    type IterChildren<'a>
+        = Iter<'a, T>
+    where
+        Self: 'a;
+
+    type IterChildrenMut<'a>
+        = IterMut<'a, T>
+    where
+        Self: 'a;
+
+    type IterLevel<'a>
+        = Iter<'a, T>
+    where
+        Self: 'a;
+
+    type IterLevelMut<'a>
+        = IterMut<'a, T>
+    where
+        Self: 'a;
+
+    type LevelOrder<'a>
+        = Iter<'a, T>
+    where
+        Self: 'a;
+
+    type LevelOrderMut<'a>
+        = IterMut<'a, T>
+    where
+        Self: 'a;
+
+    type PreOrder<'a>
+        = PreOrder<'a, N, T>
+    where
+        Self: 'a;
+
+    type PreOrderMut<'a>
+        = PreOrderMut<'a, N, T>
+    where
+        Self: 'a;
+
+    type PostOrder<'a>
+        = PostOrder<'a, N, T>
+    where
+        Self: 'a;
+
+    type PostOrderMut<'a>
+        = PostOrderMut<'a, N, T>
+    where
+        Self: 'a;
 
     fn len(&self) -> usize {
         self.len()
@@ -126,10 +228,7 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
         self.get_mut(index)
     }
 
-    fn iter_children(
-        &self,
-        index: Index<N>,
-    ) -> Option<impl DoubleEndedIterator<Item = &Self::Node>> {
+    fn iter_children(&self, index: Index<N>) -> Option<Self::IterChildren<'_>> {
         if index.to_flattened() >= self.len() {
             return None;
         }
@@ -137,10 +236,7 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
         self.get(children).map(Self::iter)
     }
 
-    fn iter_children_mut(
-        &mut self,
-        index: Index<N>,
-    ) -> Option<impl DoubleEndedIterator<Item = &mut Self::Node>> {
+    fn iter_children_mut(&mut self, index: Index<N>) -> Option<Self::IterChildrenMut<'_>> {
         if index.to_flattened() >= self.len() {
             return None;
         }
@@ -148,7 +244,7 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
         self.get_mut(children).map(Self::iter_mut)
     }
 
-    fn iter_level(&self, depth: usize) -> Option<impl DoubleEndedIterator<Item = &Self::Node>> {
+    fn iter_level(&self, depth: usize) -> Option<Self::IterLevel<'_>> {
         if depth > CompleteTree::<N>::height(self) {
             return None;
         }
@@ -156,10 +252,7 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
         self.get(level).map(Self::iter)
     }
 
-    fn iter_level_mut(
-        &mut self,
-        depth: usize,
-    ) -> Option<impl DoubleEndedIterator<Item = &mut Self::Node>> {
+    fn iter_level_mut(&mut self, depth: usize) -> Option<Self::IterLevelMut<'_>> {
         if depth > CompleteTree::<N>::height(self) {
             return None;
         }
@@ -167,37 +260,47 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
         self.get_mut(level).map(Self::iter_mut)
     }
 
-    fn traverse_level_order(&self) -> impl DoubleEndedIterator<Item = &Self::Node> {
+    fn traverse_level_order(&self) -> Self::LevelOrder<'_> {
         self.iter()
     }
 
-    fn traverse_level_order_mut(&mut self) -> impl DoubleEndedIterator<Item = &mut Self::Node> {
+    fn traverse_level_order_mut(&mut self) -> Self::LevelOrderMut<'_> {
         self.iter_mut()
     }
 
-    fn traverse_pre_order(&self) -> impl Iterator<Item = &Self::Node> {
+    fn traverse_pre_order(&self) -> Self::PreOrder<'_> {
         PreOrder::<N, T>::new(self)
     }
 
-    fn traverse_pre_order_mut(&mut self) -> impl Iterator<Item = &mut Self::Node> {
+    fn traverse_pre_order_mut(&mut self) -> Self::PreOrderMut<'_> {
         PreOrderMut::<N, T>::new(self)
     }
 
-    fn traverse_post_order(&self) -> impl Iterator<Item = &Self::Node> {
+    fn traverse_post_order(&self) -> Self::PostOrder<'_> {
         PostOrder::<N, T>::new(self)
     }
 
-    fn traverse_post_order_mut(&mut self) -> impl Iterator<Item = &mut Self::Node> {
+    fn traverse_post_order_mut(&mut self) -> Self::PostOrderMut<'_> {
         PostOrderMut::<N, T>::new(self)
     }
 }
 
 impl<T> CompleteBinaryTree for [T] {
-    fn traverse_in_order(&self) -> impl Iterator<Item = &Self::Node> {
+    type InOrder<'a>
+        = InOrder<'a, T>
+    where
+        Self: 'a;
+
+    type InOrderMut<'a>
+        = InOrderMut<'a, T>
+    where
+        Self: 'a;
+
+    fn traverse_in_order(&self) -> InOrder<'_, T> {
         InOrder::new(self)
     }
 
-    fn traverse_in_order_mut(&mut self) -> impl Iterator<Item = &mut Self::Node> {
+    fn traverse_in_order_mut(&mut self) -> InOrderMut<'_, T> {
         InOrderMut::new(self)
     }
 }
