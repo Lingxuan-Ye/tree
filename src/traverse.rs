@@ -1,7 +1,7 @@
-pub use self::in_order::TraverseInOrder;
-pub use self::level_order::TraverseLevelOrder;
-pub use self::post_order::TraversePostOrder;
-pub use self::pre_order::TraversePreOrder;
+pub use self::in_order::InOrder;
+pub use self::level_order::LevelOrder;
+pub use self::post_order::PostOrder;
+pub use self::pre_order::PreOrder;
 
 mod in_order;
 mod level_order;

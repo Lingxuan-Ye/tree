@@ -1,6 +1,6 @@
-use self::traverse::in_order::{TraverseInOrder, TraverseInOrderMut};
-use self::traverse::post_order::{TraversePostOrder, TraversePostOrderMut};
-use self::traverse::pre_order::{TraversePreOrder, TraversePreOrderMut};
+use self::traverse::in_order::{InOrder, InOrderMut};
+use self::traverse::post_order::{PostOrder, PostOrderMut};
+use self::traverse::pre_order::{PreOrder, PreOrderMut};
 use crate::{CompleteBinaryTree, CompleteTree, Index, IndexRange};
 use core::mem;
 
@@ -178,28 +178,28 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
     }
 
     fn traverse_pre_order(&self) -> impl Iterator<Item = &Self::Node> {
-        TraversePreOrder::<N, T>::new(self)
+        PreOrder::<N, T>::new(self)
     }
 
     fn traverse_pre_order_mut(&mut self) -> impl Iterator<Item = &mut Self::Node> {
-        TraversePreOrderMut::<N, T>::new(self)
+        PreOrderMut::<N, T>::new(self)
     }
 
     fn traverse_post_order(&self) -> impl Iterator<Item = &Self::Node> {
-        TraversePostOrder::<N, T>::new(self)
+        PostOrder::<N, T>::new(self)
     }
 
     fn traverse_post_order_mut(&mut self) -> impl Iterator<Item = &mut Self::Node> {
-        TraversePostOrderMut::<N, T>::new(self)
+        PostOrderMut::<N, T>::new(self)
     }
 }
 
 impl<T> CompleteBinaryTree for [T] {
     fn traverse_in_order(&self) -> impl Iterator<Item = &Self::Node> {
-        TraverseInOrder::new(self)
+        InOrder::new(self)
     }
 
     fn traverse_in_order_mut(&mut self) -> impl Iterator<Item = &mut Self::Node> {
-        TraverseInOrderMut::new(self)
+        InOrderMut::new(self)
     }
 }

@@ -3,7 +3,7 @@ use alloc::vec::Vec;
 use core::iter::FusedIterator;
 
 #[derive(Debug, Clone)]
-pub struct TraverseInOrder<'a, T>
+pub struct InOrder<'a, T>
 where
     T: CompleteTree<2> + ?Sized,
 {
@@ -12,7 +12,7 @@ where
     tree: &'a T,
 }
 
-impl<'a, T> TraverseInOrder<'a, T>
+impl<'a, T> InOrder<'a, T>
 where
     T: CompleteTree<2> + ?Sized,
 {
@@ -28,7 +28,7 @@ where
     }
 }
 
-impl<'a, T> Iterator for TraverseInOrder<'a, T>
+impl<'a, T> Iterator for InOrder<'a, T>
 where
     T: CompleteTree<2> + ?Sized,
 {
@@ -74,7 +74,7 @@ where
     }
 }
 
-impl<T> FusedIterator for TraverseInOrder<'_, T> where T: CompleteTree<2> + ?Sized {}
+impl<T> FusedIterator for InOrder<'_, T> where T: CompleteTree<2> + ?Sized {}
 
 #[derive(Debug, Clone)]
 enum State {

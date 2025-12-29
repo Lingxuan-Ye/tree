@@ -4,13 +4,13 @@ use core::iter::FusedIterator;
 use core::marker::PhantomData;
 
 #[derive(Debug, Clone)]
-pub(in super::super) struct TraverseInOrder<'a, T> {
+pub(in super::super) struct InOrder<'a, T> {
     state: State,
     stack: Vec<Index<2>>,
     tree: &'a [T],
 }
 
-impl<'a, T> TraverseInOrder<'a, T> {
+impl<'a, T> InOrder<'a, T> {
     pub(in super::super) fn new(tree: &'a [T]) -> Self {
         let state = if tree.is_empty() {
             State::Done
@@ -23,7 +23,7 @@ impl<'a, T> TraverseInOrder<'a, T> {
     }
 }
 
-impl<'a, T> Iterator for TraverseInOrder<'a, T> {
+impl<'a, T> Iterator for InOrder<'a, T> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -68,17 +68,17 @@ impl<'a, T> Iterator for TraverseInOrder<'a, T> {
     }
 }
 
-impl<T> FusedIterator for TraverseInOrder<'_, T> {}
+impl<T> FusedIterator for InOrder<'_, T> {}
 
 #[derive(Debug, Clone)]
-pub(in super::super) struct TraverseInOrderMut<'a, T> {
+pub(in super::super) struct InOrderMut<'a, T> {
     state: State,
     stack: Vec<Index<2>>,
     tree: *mut [T],
     marker: PhantomData<&'a mut T>,
 }
 
-impl<'a, T> TraverseInOrderMut<'a, T> {
+impl<'a, T> InOrderMut<'a, T> {
     pub(in super::super) fn new(tree: &'a mut [T]) -> Self {
         let state = if tree.is_empty() {
             State::Done
@@ -98,7 +98,7 @@ impl<'a, T> TraverseInOrderMut<'a, T> {
     }
 }
 
-impl<'a, T> Iterator for TraverseInOrderMut<'a, T> {
+impl<'a, T> Iterator for InOrderMut<'a, T> {
     type Item = &'a mut T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -143,7 +143,7 @@ impl<'a, T> Iterator for TraverseInOrderMut<'a, T> {
     }
 }
 
-impl<T> FusedIterator for TraverseInOrderMut<'_, T> {}
+impl<T> FusedIterator for InOrderMut<'_, T> {}
 
 #[derive(Debug, Clone)]
 enum State {

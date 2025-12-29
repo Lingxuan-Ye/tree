@@ -4,12 +4,12 @@ use core::iter::FusedIterator;
 use core::marker::PhantomData;
 
 #[derive(Debug, Clone)]
-pub(in super::super) struct TraversePreOrder<'a, const N: usize, T> {
+pub(in super::super) struct PreOrder<'a, const N: usize, T> {
     stack: Vec<usize>,
     tree: &'a [T],
 }
 
-impl<'a, const N: usize, T> TraversePreOrder<'a, N, T> {
+impl<'a, const N: usize, T> PreOrder<'a, N, T> {
     pub(in super::super) fn new(tree: &'a [T]) -> Self {
         let capacity = CompleteTree::<N>::height(tree)
             .saturating_mul(N - 1)
@@ -22,7 +22,7 @@ impl<'a, const N: usize, T> TraversePreOrder<'a, N, T> {
     }
 }
 
-impl<'a, const N: usize, T> Iterator for TraversePreOrder<'a, N, T> {
+impl<'a, const N: usize, T> Iterator for PreOrder<'a, N, T> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -42,16 +42,16 @@ impl<'a, const N: usize, T> Iterator for TraversePreOrder<'a, N, T> {
     }
 }
 
-impl<const N: usize, T> FusedIterator for TraversePreOrder<'_, N, T> {}
+impl<const N: usize, T> FusedIterator for PreOrder<'_, N, T> {}
 
 #[derive(Debug)]
-pub(in super::super) struct TraversePreOrderMut<'a, const N: usize, T> {
+pub(in super::super) struct PreOrderMut<'a, const N: usize, T> {
     stack: Vec<usize>,
     tree: *mut [T],
     marker: PhantomData<&'a mut T>,
 }
 
-impl<'a, const N: usize, T> TraversePreOrderMut<'a, N, T> {
+impl<'a, const N: usize, T> PreOrderMut<'a, N, T> {
     pub(in super::super) fn new(tree: &'a mut [T]) -> Self {
         let capacity = CompleteTree::<N>::height(tree)
             .saturating_mul(N - 1)
@@ -70,7 +70,7 @@ impl<'a, const N: usize, T> TraversePreOrderMut<'a, N, T> {
     }
 }
 
-impl<'a, const N: usize, T> Iterator for TraversePreOrderMut<'a, N, T> {
+impl<'a, const N: usize, T> Iterator for PreOrderMut<'a, N, T> {
     type Item = &'a mut T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -90,4 +90,4 @@ impl<'a, const N: usize, T> Iterator for TraversePreOrderMut<'a, N, T> {
     }
 }
 
-impl<const N: usize, T> FusedIterator for TraversePreOrderMut<'_, N, T> {}
+impl<const N: usize, T> FusedIterator for PreOrderMut<'_, N, T> {}

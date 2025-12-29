@@ -5,12 +5,12 @@ use core::marker::PhantomData;
 use core::ops::Range;
 
 #[derive(Debug, Clone)]
-pub(in super::super) struct TraversePostOrder<'a, const N: usize, T> {
+pub(in super::super) struct PostOrder<'a, const N: usize, T> {
     stack: Vec<Frame<N>>,
     tree: &'a [T],
 }
 
-impl<'a, const N: usize, T> TraversePostOrder<'a, N, T> {
+impl<'a, const N: usize, T> PostOrder<'a, N, T> {
     pub(in super::super) fn new(tree: &'a [T]) -> Self {
         let capacity = CompleteTree::<N>::height(tree) + 1;
         let mut stack = Vec::with_capacity(capacity);
@@ -27,7 +27,7 @@ impl<'a, const N: usize, T> TraversePostOrder<'a, N, T> {
     }
 }
 
-impl<'a, const N: usize, T> Iterator for TraversePostOrder<'a, N, T> {
+impl<'a, const N: usize, T> Iterator for PostOrder<'a, N, T> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -55,16 +55,16 @@ impl<'a, const N: usize, T> Iterator for TraversePostOrder<'a, N, T> {
     }
 }
 
-impl<const N: usize, T> FusedIterator for TraversePostOrder<'_, N, T> {}
+impl<const N: usize, T> FusedIterator for PostOrder<'_, N, T> {}
 
 #[derive(Debug)]
-pub(in super::super) struct TraversePostOrderMut<'a, const N: usize, T> {
+pub(in super::super) struct PostOrderMut<'a, const N: usize, T> {
     stack: Vec<Frame<N>>,
     tree: *mut [T],
     marker: PhantomData<&'a mut T>,
 }
 
-impl<'a, const N: usize, T> TraversePostOrderMut<'a, N, T> {
+impl<'a, const N: usize, T> PostOrderMut<'a, N, T> {
     pub(in super::super) fn new(tree: &'a mut [T]) -> Self {
         let capacity = CompleteTree::<N>::height(tree) + 1;
         let mut stack = Vec::with_capacity(capacity);
@@ -87,7 +87,7 @@ impl<'a, const N: usize, T> TraversePostOrderMut<'a, N, T> {
     }
 }
 
-impl<'a, const N: usize, T> Iterator for TraversePostOrderMut<'a, N, T> {
+impl<'a, const N: usize, T> Iterator for PostOrderMut<'a, N, T> {
     type Item = &'a mut T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -115,7 +115,7 @@ impl<'a, const N: usize, T> Iterator for TraversePostOrderMut<'a, N, T> {
     }
 }
 
-impl<const N: usize, T> FusedIterator for TraversePostOrderMut<'_, N, T> {}
+impl<const N: usize, T> FusedIterator for PostOrderMut<'_, N, T> {}
 
 #[derive(Debug, Clone)]
 struct Frame<const N: usize> {

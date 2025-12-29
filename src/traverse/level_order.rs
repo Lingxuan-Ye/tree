@@ -2,7 +2,7 @@ use crate::{CompleteTree, IndexRange};
 use core::iter::FusedIterator;
 
 #[derive(Debug, Clone)]
-pub struct TraverseLevelOrder<'a, const N: usize, T>
+pub struct LevelOrder<'a, const N: usize, T>
 where
     T: CompleteTree<N> + ?Sized,
 {
@@ -10,7 +10,7 @@ where
     tree: &'a T,
 }
 
-impl<'a, const N: usize, T> TraverseLevelOrder<'a, N, T>
+impl<'a, const N: usize, T> LevelOrder<'a, N, T>
 where
     T: CompleteTree<N> + ?Sized,
 {
@@ -20,7 +20,7 @@ where
     }
 }
 
-impl<'a, const N: usize, T> Iterator for TraverseLevelOrder<'a, N, T>
+impl<'a, const N: usize, T> Iterator for LevelOrder<'a, N, T>
 where
     T: CompleteTree<N> + ?Sized,
 {
@@ -37,7 +37,7 @@ where
     }
 }
 
-impl<const N: usize, T> ExactSizeIterator for TraverseLevelOrder<'_, N, T>
+impl<const N: usize, T> ExactSizeIterator for LevelOrder<'_, N, T>
 where
     T: CompleteTree<N> + ?Sized,
 {
@@ -46,7 +46,7 @@ where
     }
 }
 
-impl<const N: usize, T> DoubleEndedIterator for TraverseLevelOrder<'_, N, T>
+impl<const N: usize, T> DoubleEndedIterator for LevelOrder<'_, N, T>
 where
     T: CompleteTree<N> + ?Sized,
 {
@@ -56,7 +56,4 @@ where
     }
 }
 
-impl<const N: usize, T> FusedIterator for TraverseLevelOrder<'_, N, T> where
-    T: CompleteTree<N> + ?Sized
-{
-}
+impl<const N: usize, T> FusedIterator for LevelOrder<'_, N, T> where T: CompleteTree<N> + ?Sized {}

@@ -3,7 +3,7 @@ use alloc::vec::Vec;
 use core::iter::FusedIterator;
 
 #[derive(Debug, Clone)]
-pub struct TraversePreOrder<'a, const N: usize, T>
+pub struct PreOrder<'a, const N: usize, T>
 where
     T: CompleteTree<N> + ?Sized,
 {
@@ -11,7 +11,7 @@ where
     tree: &'a T,
 }
 
-impl<'a, const N: usize, T> TraversePreOrder<'a, N, T>
+impl<'a, const N: usize, T> PreOrder<'a, N, T>
 where
     T: CompleteTree<N> + ?Sized,
 {
@@ -25,7 +25,7 @@ where
     }
 }
 
-impl<'a, const N: usize, T> Iterator for TraversePreOrder<'a, N, T>
+impl<'a, const N: usize, T> Iterator for PreOrder<'a, N, T>
 where
     T: CompleteTree<N> + ?Sized,
 {
@@ -45,7 +45,4 @@ where
     }
 }
 
-impl<const N: usize, T> FusedIterator for TraversePreOrder<'_, N, T> where
-    T: CompleteTree<N> + ?Sized
-{
-}
+impl<const N: usize, T> FusedIterator for PreOrder<'_, N, T> where T: CompleteTree<N> + ?Sized {}
