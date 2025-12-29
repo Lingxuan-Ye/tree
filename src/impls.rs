@@ -1,1 +1,1 @@
-mod slice;
+pub(crate) mod slice;

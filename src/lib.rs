@@ -2,6 +2,7 @@
 
 extern crate alloc;
 
+pub use self::impls::slice::SliceTree;
 pub use self::index::{Index, IndexRange};
 
 pub mod traverse;
