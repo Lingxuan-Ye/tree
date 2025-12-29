@@ -1,11 +1,10 @@
 [package]
-name = "tree"
+name = "bypond"
 version = "0.1.0"
 edition = "2024"
 authors = ["Lingxuan Ye <love@lingxuan.io>"]
 categories = ["data-structures", "no-std"]
-repository = "https://github.com/Lingxuan-Ye/tree"
+repository = "https://github.com/Lingxuan-Ye/bypond"
 readme = "README.md"
 license = "MIT"
-publish = false
 description = "A highly untested complete tree library."
