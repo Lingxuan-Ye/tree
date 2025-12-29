@@ -2,13 +2,12 @@
 
 extern crate alloc;
 
-pub use self::impls::slice::SliceTree;
 pub use self::index::{Index, IndexRange};
+pub use self::slice_tree::SliceTree;
 
 pub mod traverse;
-
-mod impls;
-mod index;
+pub mod index;
+pub mod slice_tree;
 
 pub trait CompleteTree<const N: usize> {
     type Node;

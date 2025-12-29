@@ -1,10 +1,8 @@
-use self::traverse::in_order::{InOrder, InOrderMut};
-use self::traverse::post_order::{PostOrder, PostOrderMut};
-use self::traverse::pre_order::{PreOrder, PreOrderMut};
+use self::traverse::{InOrder, InOrderMut, PostOrder, PostOrderMut, PreOrder, PreOrderMut};
 use crate::{CompleteBinaryTree, CompleteTree, Index, IndexRange};
 use core::mem;
 
-mod traverse;
+pub mod traverse;
 
 #[derive(Debug)]
 #[repr(transparent)]

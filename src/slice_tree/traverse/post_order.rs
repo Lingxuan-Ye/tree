@@ -5,13 +5,13 @@ use core::marker::PhantomData;
 use core::ops::Range;
 
 #[derive(Debug, Clone)]
-pub(in super::super) struct PostOrder<'a, const N: usize, T> {
+pub struct PostOrder<'a, const N: usize, T> {
     stack: Vec<Frame<N>>,
     tree: &'a [T],
 }
 
 impl<'a, const N: usize, T> PostOrder<'a, N, T> {
-    pub(in super::super) fn new(tree: &'a [T]) -> Self {
+    pub fn new(tree: &'a [T]) -> Self {
         let capacity = CompleteTree::<N>::height(tree) + 1;
         let mut stack = Vec::with_capacity(capacity);
         if !tree.is_empty() {
@@ -58,14 +58,14 @@ impl<'a, const N: usize, T> Iterator for PostOrder<'a, N, T> {
 impl<const N: usize, T> FusedIterator for PostOrder<'_, N, T> {}
 
 #[derive(Debug)]
-pub(in super::super) struct PostOrderMut<'a, const N: usize, T> {
+pub struct PostOrderMut<'a, const N: usize, T> {
     stack: Vec<Frame<N>>,
     tree: *mut [T],
     marker: PhantomData<&'a mut T>,
 }
 
 impl<'a, const N: usize, T> PostOrderMut<'a, N, T> {
-    pub(in super::super) fn new(tree: &'a mut [T]) -> Self {
+    pub fn new(tree: &'a mut [T]) -> Self {
         let capacity = CompleteTree::<N>::height(tree) + 1;
         let mut stack = Vec::with_capacity(capacity);
         if !tree.is_empty() {

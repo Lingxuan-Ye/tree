@@ -4,14 +4,14 @@ use core::iter::FusedIterator;
 use core::marker::PhantomData;
 
 #[derive(Debug, Clone)]
-pub(in super::super) struct InOrder<'a, T> {
+pub struct InOrder<'a, T> {
     state: State,
     stack: Vec<Index<2>>,
     tree: &'a [T],
 }
 
 impl<'a, T> InOrder<'a, T> {
-    pub(in super::super) fn new(tree: &'a [T]) -> Self {
+    pub fn new(tree: &'a [T]) -> Self {
         let state = if tree.is_empty() {
             State::Done
         } else {
@@ -71,7 +71,7 @@ impl<'a, T> Iterator for InOrder<'a, T> {
 impl<T> FusedIterator for InOrder<'_, T> {}
 
 #[derive(Debug, Clone)]
-pub(in super::super) struct InOrderMut<'a, T> {
+pub struct InOrderMut<'a, T> {
     state: State,
     stack: Vec<Index<2>>,
     tree: *mut [T],
@@ -79,7 +79,7 @@ pub(in super::super) struct InOrderMut<'a, T> {
 }
 
 impl<'a, T> InOrderMut<'a, T> {
-    pub(in super::super) fn new(tree: &'a mut [T]) -> Self {
+    pub fn new(tree: &'a mut [T]) -> Self {
         let state = if tree.is_empty() {
             State::Done
         } else {
