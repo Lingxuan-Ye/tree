@@ -1,6 +1,7 @@
 use self::traverse::{InOrder, InOrderMut, PostOrder, PostOrderMut, PreOrder, PreOrderMut};
 use crate::{CompleteBinaryTree, CompleteTree, Index, IndexRange};
 use core::mem;
+use core::ops::{Deref, DerefMut};
 use core::slice::{Iter, IterMut};
 
 pub mod traverse;
@@ -23,7 +24,7 @@ impl<const N: usize, T> SliceTree<N, T> {
     }
 
     pub const fn is_empty(&self) -> bool {
-        self.len() == 0
+        self.0.is_empty()
     }
 
     pub const fn as_ref(&self) -> &[T] {
@@ -32,6 +33,56 @@ impl<const N: usize, T> SliceTree<N, T> {
 
     pub const fn as_mut(&mut self) -> &mut [T] {
         &mut self.0
+    }
+}
+
+impl<const N: usize, T> Deref for SliceTree<N, T> {
+    type Target = [T];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<const N: usize, T> DerefMut for SliceTree<N, T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl<const N: usize, T> AsRef<[T]> for SliceTree<N, T> {
+    fn as_ref(&self) -> &[T] {
+        &self.0
+    }
+}
+
+impl<const N: usize, T> AsMut<[T]> for SliceTree<N, T> {
+    fn as_mut(&mut self) -> &mut [T] {
+        &mut self.0
+    }
+}
+
+impl<'a, const N: usize, T> From<&'a [T]> for &'a SliceTree<N, T> {
+    fn from(value: &'a [T]) -> Self {
+        SliceTree::from_slice(value)
+    }
+}
+
+impl<'a, const N: usize, T> From<&'a mut [T]> for &'a mut SliceTree<N, T> {
+    fn from(value: &'a mut [T]) -> Self {
+        SliceTree::from_slice_mut(value)
+    }
+}
+
+impl<'a, const N: usize, T> From<&'a SliceTree<N, T>> for &'a [T] {
+    fn from(value: &'a SliceTree<N, T>) -> Self {
+        &value.0
+    }
+}
+
+impl<'a, const N: usize, T> From<&'a mut SliceTree<N, T>> for &'a mut [T] {
+    fn from(value: &'a mut SliceTree<N, T>) -> Self {
+        &mut value.0
     }
 }
 
