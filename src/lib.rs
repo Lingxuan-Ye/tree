@@ -7,7 +7,6 @@ pub use self::slice_tree::SliceTree;
 
 pub mod index;
 pub mod slice_tree;
-pub mod traverse;
 
 pub trait CompleteTree<const N: usize> {
     type Node;
