@@ -6,18 +6,18 @@ use core::marker::PhantomData;
 #[derive(Debug, Clone)]
 pub struct InOrder<'a, T> {
     indices: InOrderIndices,
-    root: *const T,
+    base: *const T,
     marker: PhantomData<&'a T>,
 }
 
 impl<'a, T> InOrder<'a, T> {
     pub fn new(tree: &'a [T]) -> Self {
         let indices = InOrderIndices::new(tree.len());
-        let root = tree.as_ptr();
+        let base = tree.as_ptr();
         let marker = PhantomData;
         Self {
             indices,
-            root,
+            base,
             marker,
         }
     }
@@ -28,7 +28,7 @@ impl<'a, T> Iterator for InOrder<'a, T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let index = self.indices.next()?;
-        let node = unsafe { &*self.root.add(index) };
+        let node = unsafe { &*self.base.add(index) };
         Some(node)
     }
 
@@ -42,18 +42,18 @@ impl<T> FusedIterator for InOrder<'_, T> {}
 #[derive(Debug)]
 pub struct InOrderMut<'a, T> {
     indices: InOrderIndices,
-    root: *mut T,
+    base: *mut T,
     marker: PhantomData<&'a mut T>,
 }
 
 impl<'a, T> InOrderMut<'a, T> {
     pub fn new(tree: &'a mut [T]) -> Self {
         let indices = InOrderIndices::new(tree.len());
-        let root = tree.as_mut_ptr();
+        let base = tree.as_mut_ptr();
         let marker = PhantomData;
         Self {
             indices,
-            root,
+            base,
             marker,
         }
     }
@@ -64,7 +64,7 @@ impl<'a, T> Iterator for InOrderMut<'a, T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let index = self.indices.next()?;
-        let node = unsafe { &mut *self.root.add(index) };
+        let node = unsafe { &mut *self.base.add(index) };
         Some(node)
     }
 
