@@ -10,29 +10,27 @@ pub mod traverse;
 #[repr(transparent)]
 pub struct SliceTree<const N: usize, T>([T]);
 
-impl<const N: usize, T> SliceTree<N, T> {
-    pub const fn from_slice(slice: &[T]) -> &Self {
-        unsafe { mem::transmute(slice) }
+impl<'a, const N: usize, T> From<&'a [T]> for &'a SliceTree<N, T> {
+    fn from(value: &'a [T]) -> Self {
+        unsafe { mem::transmute(value) }
     }
+}
 
-    pub const fn from_slice_mut(slice: &mut [T]) -> &mut Self {
-        unsafe { mem::transmute(slice) }
+impl<'a, const N: usize, T> From<&'a mut [T]> for &'a mut SliceTree<N, T> {
+    fn from(value: &'a mut [T]) -> Self {
+        unsafe { mem::transmute(value) }
     }
+}
 
-    pub const fn len(&self) -> usize {
-        self.0.len()
+impl<'a, const N: usize, T> From<&'a SliceTree<N, T>> for &'a [T] {
+    fn from(value: &'a SliceTree<N, T>) -> Self {
+        &value.0
     }
+}
 
-    pub const fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-
-    pub const fn as_ref(&self) -> &[T] {
-        &self.0
-    }
-
-    pub const fn as_mut(&mut self) -> &mut [T] {
-        &mut self.0
+impl<'a, const N: usize, T> From<&'a mut SliceTree<N, T>> for &'a mut [T] {
+    fn from(value: &'a mut SliceTree<N, T>) -> Self {
+        &mut value.0
     }
 }
 
@@ -59,30 +57,6 @@ impl<const N: usize, T> AsRef<[T]> for SliceTree<N, T> {
 impl<const N: usize, T> AsMut<[T]> for SliceTree<N, T> {
     fn as_mut(&mut self) -> &mut [T] {
         &mut self.0
-    }
-}
-
-impl<'a, const N: usize, T> From<&'a [T]> for &'a SliceTree<N, T> {
-    fn from(value: &'a [T]) -> Self {
-        SliceTree::from_slice(value)
-    }
-}
-
-impl<'a, const N: usize, T> From<&'a mut [T]> for &'a mut SliceTree<N, T> {
-    fn from(value: &'a mut [T]) -> Self {
-        SliceTree::from_slice_mut(value)
-    }
-}
-
-impl<'a, const N: usize, T> From<&'a SliceTree<N, T>> for &'a [T] {
-    fn from(value: &'a SliceTree<N, T>) -> Self {
-        &value.0
-    }
-}
-
-impl<'a, const N: usize, T> From<&'a mut SliceTree<N, T>> for &'a mut [T] {
-    fn from(value: &'a mut SliceTree<N, T>) -> Self {
-        &mut value.0
     }
 }
 
