@@ -1,6 +1,8 @@
 use core::iter::FusedIterator;
 use core::ops::Range;
 
+pub mod traverse;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Index<const N: usize> {
     depth: usize,
