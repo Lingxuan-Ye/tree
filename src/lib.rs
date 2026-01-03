@@ -63,6 +63,10 @@ pub trait CompleteTree<const N: usize> {
         Index::<N>::from_flattened(index).depth()
     }
 
+    fn swap(&mut self, index_a: Index<N>, index_b: Index<N>) -> Option<()>;
+
+    fn replace(&mut self, index: Index<N>, node: Self::Node) -> Option<Self::Node>;
+
     fn node(&self, index: Index<N>) -> Option<&Self::Node>;
 
     fn node_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node>;

@@ -2,6 +2,7 @@ use self::traverse::{InOrder, InOrderMut, PostOrder, PostOrderMut, PreOrder, Pre
 use crate::{CompleteBinaryTree, CompleteTree, Index, IndexRange};
 use core::mem;
 use core::ops::{Deref, DerefMut};
+use core::ptr;
 use core::slice::{Iter, IterMut};
 
 pub mod traverse;
@@ -115,6 +116,14 @@ impl<const N: usize, T> CompleteTree<N> for SliceTree<N, T> {
 
     fn len(&self) -> usize {
         CompleteTree::<N>::len(self.as_ref())
+    }
+
+    fn swap(&mut self, index_a: Index<N>, index_b: Index<N>) -> Option<()> {
+        CompleteTree::<N>::swap(self.as_mut(), index_a, index_b)
+    }
+
+    fn replace(&mut self, index: Index<N>, node: Self::Node) -> Option<Self::Node> {
+        CompleteTree::<N>::replace(self.as_mut(), index, node)
     }
 
     fn node(&self, index: Index<N>) -> Option<&Self::Node> {
@@ -241,6 +250,33 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
 
     fn len(&self) -> usize {
         self.len()
+    }
+
+    fn swap(&mut self, index_a: Index<N>, index_b: Index<N>) -> Option<()> {
+        let index_a = index_a.to_flattened();
+        let index_b = index_b.to_flattened();
+        if index_a >= self.len() || index_b >= self.len() {
+            return None;
+        }
+        if index_a == index_b {
+            return Some(());
+        }
+        unsafe {
+            let base = self.as_mut_ptr();
+            let ptr_a = base.add(index_a);
+            let ptr_b = base.add(index_b);
+            ptr::swap_nonoverlapping(ptr_a, ptr_b, 1);
+        }
+        Some(())
+    }
+
+    fn replace(&mut self, index: Index<N>, node: Self::Node) -> Option<Self::Node> {
+        let index = index.to_flattened();
+        if index >= self.len() {
+            return None;
+        }
+        let old = unsafe { self.get_unchecked_mut(index) };
+        Some(mem::replace(old, node))
     }
 
     fn node(&self, index: Index<N>) -> Option<&Self::Node> {
