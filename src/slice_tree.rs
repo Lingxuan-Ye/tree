@@ -2,6 +2,7 @@ use self::traverse::{InOrder, InOrderMut, PostOrder, PostOrderMut, PreOrder, Pre
 use crate::{CompleteBinaryTree, CompleteTree, Index, IndexRange};
 use core::mem;
 use core::ops::{Deref, DerefMut};
+use core::ptr;
 use core::slice::{Iter, IterMut};
 
 pub mod traverse;
@@ -10,29 +11,27 @@ pub mod traverse;
 #[repr(transparent)]
 pub struct SliceTree<const N: usize, T>([T]);
 
-impl<const N: usize, T> SliceTree<N, T> {
-    pub const fn from_slice(slice: &[T]) -> &Self {
-        unsafe { mem::transmute(slice) }
+impl<'a, const N: usize, T> From<&'a [T]> for &'a SliceTree<N, T> {
+    fn from(value: &'a [T]) -> Self {
+        unsafe { mem::transmute(value) }
     }
+}
 
-    pub const fn from_slice_mut(slice: &mut [T]) -> &mut Self {
-        unsafe { mem::transmute(slice) }
+impl<'a, const N: usize, T> From<&'a mut [T]> for &'a mut SliceTree<N, T> {
+    fn from(value: &'a mut [T]) -> Self {
+        unsafe { mem::transmute(value) }
     }
+}
 
-    pub const fn len(&self) -> usize {
-        self.0.len()
+impl<'a, const N: usize, T> From<&'a SliceTree<N, T>> for &'a [T] {
+    fn from(value: &'a SliceTree<N, T>) -> Self {
+        &value.0
     }
+}
 
-    pub const fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-
-    pub const fn as_ref(&self) -> &[T] {
-        &self.0
-    }
-
-    pub const fn as_mut(&mut self) -> &mut [T] {
-        &mut self.0
+impl<'a, const N: usize, T> From<&'a mut SliceTree<N, T>> for &'a mut [T] {
+    fn from(value: &'a mut SliceTree<N, T>) -> Self {
+        &mut value.0
     }
 }
 
@@ -59,30 +58,6 @@ impl<const N: usize, T> AsRef<[T]> for SliceTree<N, T> {
 impl<const N: usize, T> AsMut<[T]> for SliceTree<N, T> {
     fn as_mut(&mut self) -> &mut [T] {
         &mut self.0
-    }
-}
-
-impl<'a, const N: usize, T> From<&'a [T]> for &'a SliceTree<N, T> {
-    fn from(value: &'a [T]) -> Self {
-        SliceTree::from_slice(value)
-    }
-}
-
-impl<'a, const N: usize, T> From<&'a mut [T]> for &'a mut SliceTree<N, T> {
-    fn from(value: &'a mut [T]) -> Self {
-        SliceTree::from_slice_mut(value)
-    }
-}
-
-impl<'a, const N: usize, T> From<&'a SliceTree<N, T>> for &'a [T] {
-    fn from(value: &'a SliceTree<N, T>) -> Self {
-        &value.0
-    }
-}
-
-impl<'a, const N: usize, T> From<&'a mut SliceTree<N, T>> for &'a mut [T] {
-    fn from(value: &'a mut SliceTree<N, T>) -> Self {
-        &mut value.0
     }
 }
 
@@ -141,6 +116,14 @@ impl<const N: usize, T> CompleteTree<N> for SliceTree<N, T> {
 
     fn len(&self) -> usize {
         CompleteTree::<N>::len(self.as_ref())
+    }
+
+    fn swap(&mut self, index_a: Index<N>, index_b: Index<N>) -> Option<()> {
+        CompleteTree::<N>::swap(self.as_mut(), index_a, index_b)
+    }
+
+    fn replace(&mut self, index: Index<N>, node: Self::Node) -> Option<Self::Node> {
+        CompleteTree::<N>::replace(self.as_mut(), index, node)
     }
 
     fn node(&self, index: Index<N>) -> Option<&Self::Node> {
@@ -267,6 +250,33 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
 
     fn len(&self) -> usize {
         self.len()
+    }
+
+    fn swap(&mut self, index_a: Index<N>, index_b: Index<N>) -> Option<()> {
+        let index_a = index_a.to_flattened();
+        let index_b = index_b.to_flattened();
+        if index_a >= self.len() || index_b >= self.len() {
+            return None;
+        }
+        if index_a == index_b {
+            return Some(());
+        }
+        unsafe {
+            let base = self.as_mut_ptr();
+            let ptr_a = base.add(index_a);
+            let ptr_b = base.add(index_b);
+            ptr::swap_nonoverlapping(ptr_a, ptr_b, 1);
+        }
+        Some(())
+    }
+
+    fn replace(&mut self, index: Index<N>, node: Self::Node) -> Option<Self::Node> {
+        let index = index.to_flattened();
+        if index >= self.len() {
+            return None;
+        }
+        let old = unsafe { self.get_unchecked_mut(index) };
+        Some(mem::replace(old, node))
     }
 
     fn node(&self, index: Index<N>) -> Option<&Self::Node> {
