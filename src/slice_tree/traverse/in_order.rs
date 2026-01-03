@@ -70,7 +70,7 @@ impl<'a, T> Iterator for InOrder<'a, T> {
 
 impl<T> FusedIterator for InOrder<'_, T> {}
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct InOrderMut<'a, T> {
     state: State,
     stack: Vec<Index<2>>,
