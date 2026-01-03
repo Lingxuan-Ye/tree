@@ -59,8 +59,11 @@ pub trait CompleteTree<const N: usize> {
     }
 
     fn height(&self) -> usize {
-        let index = self.len() - 1;
-        Index::<N>::from_flattened(index).depth()
+        if self.is_empty() {
+            return 0;
+        }
+        let last = self.len() - 1;
+        Index::<N>::from_flattened(last).depth()
     }
 
     fn swap(&mut self, index_a: Index<N>, index_b: Index<N>) -> Option<()>;
