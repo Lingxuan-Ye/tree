@@ -258,14 +258,13 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
         if index_a >= self.len() || index_b >= self.len() {
             return None;
         }
-        if index_a == index_b {
-            return Some(());
-        }
-        unsafe {
+        if index_a != index_b {
             let base = self.as_mut_ptr();
-            let ptr_a = base.add(index_a);
-            let ptr_b = base.add(index_b);
-            ptr::swap_nonoverlapping(ptr_a, ptr_b, 1);
+            unsafe {
+                let ptr_a = base.add(index_a);
+                let ptr_b = base.add(index_b);
+                ptr::swap_nonoverlapping(ptr_a, ptr_b, 1);
+            }
         }
         Some(())
     }
