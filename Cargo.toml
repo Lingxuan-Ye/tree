@@ -7,4 +7,4 @@ categories = ["data-structures", "no-std"]
 repository = "https://github.com/Lingxuan-Ye/bypond"
 readme = "README.md"
 license = "MIT"
-description = "A highly untested complete tree library."
+description = "A highly untested and undocumented complete tree library."
