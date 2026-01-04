@@ -134,6 +134,22 @@ impl<const N: usize, T> CompleteTree<N> for SliceTree<N, T> {
         CompleteTree::<N>::node_mut(self.as_mut(), index)
     }
 
+    fn root(&self) -> Option<&Self::Node> {
+        CompleteTree::<N>::root(self.as_ref())
+    }
+
+    fn root_mut(&mut self) -> Option<&mut Self::Node> {
+        CompleteTree::<N>::root_mut(self.as_mut())
+    }
+
+    fn last(&self) -> Option<&Self::Node> {
+        CompleteTree::<N>::last(self.as_ref())
+    }
+
+    fn last_mut(&mut self) -> Option<&mut Self::Node> {
+        CompleteTree::<N>::last_mut(self.as_mut())
+    }
+
     fn iter_children(&self, index: Index<N>) -> Option<Self::IterChildren<'_>> {
         CompleteTree::<N>::iter_children(self.as_ref(), index)
     }
@@ -306,6 +322,24 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
     fn node_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node> {
         let index = index.to_flattened();
         self.get_mut(index)
+    }
+
+    fn root(&self) -> Option<&Self::Node> {
+        let index = const { Index::<N>::root().to_flattened() };
+        self.get(index)
+    }
+
+    fn root_mut(&mut self) -> Option<&mut Self::Node> {
+        let index = const { Index::<N>::root().to_flattened() };
+        self.get_mut(index)
+    }
+
+    fn last(&self) -> Option<&Self::Node> {
+        self.last()
+    }
+
+    fn last_mut(&mut self) -> Option<&mut Self::Node> {
+        self.last_mut()
     }
 
     fn iter_children(&self, index: Index<N>) -> Option<Self::IterChildren<'_>> {

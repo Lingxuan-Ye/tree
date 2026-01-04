@@ -61,8 +61,9 @@ pub trait CompleteTree<const N: usize> {
         if self.is_empty() {
             return 0;
         }
-        let last = self.len() - 1;
-        Index::<N>::from_flattened(last).depth()
+        let index = self.len() - 1;
+        let index = Index::<N>::from_flattened(index);
+        index.depth()
     }
 
     fn swap(&mut self, index_a: Index<N>, index_b: Index<N>) -> Option<()>;
@@ -72,6 +73,34 @@ pub trait CompleteTree<const N: usize> {
     fn node(&self, index: Index<N>) -> Option<&Self::Node>;
 
     fn node_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node>;
+
+    fn root(&self) -> Option<&Self::Node> {
+        let index = Index::root();
+        self.node(index)
+    }
+
+    fn root_mut(&mut self) -> Option<&mut Self::Node> {
+        let index = Index::root();
+        self.node_mut(index)
+    }
+
+    fn last(&self) -> Option<&Self::Node> {
+        if self.is_empty() {
+            return None;
+        }
+        let index = self.len() - 1;
+        let index = Index::<N>::from_flattened(index);
+        self.node(index)
+    }
+
+    fn last_mut(&mut self) -> Option<&mut Self::Node> {
+        if self.is_empty() {
+            return None;
+        }
+        let index = self.len() - 1;
+        let index = Index::<N>::from_flattened(index);
+        self.node_mut(index)
+    }
 
     fn parent(&self, index: Index<N>) -> Option<&Self::Node> {
         let index = index.parent()?;
