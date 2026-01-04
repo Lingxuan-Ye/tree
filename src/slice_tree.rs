@@ -7,7 +7,7 @@ use core::slice::{Iter, IterMut};
 
 pub mod traverse;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 pub struct SliceTree<const N: usize, T>([T]);
 
