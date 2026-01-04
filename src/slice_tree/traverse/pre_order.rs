@@ -6,18 +6,18 @@ use core::marker::PhantomData;
 #[derive(Debug, Clone)]
 pub struct PreOrder<'a, const N: usize, T> {
     indices: PreOrderIndices<N>,
-    root: *const T,
+    base: *const T,
     marker: PhantomData<&'a T>,
 }
 
 impl<'a, const N: usize, T> PreOrder<'a, N, T> {
     pub fn new(tree: &'a [T]) -> Self {
         let indices = PreOrderIndices::new(tree.len());
-        let root = tree.as_ptr();
+        let base = tree.as_ptr();
         let marker = PhantomData;
         Self {
             indices,
-            root,
+            base,
             marker,
         }
     }
@@ -28,7 +28,7 @@ impl<'a, const N: usize, T> Iterator for PreOrder<'a, N, T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let index = self.indices.next()?;
-        let node = unsafe { &*self.root.add(index) };
+        let node = unsafe { &*self.base.add(index) };
         Some(node)
     }
 
@@ -42,18 +42,18 @@ impl<const N: usize, T> FusedIterator for PreOrder<'_, N, T> {}
 #[derive(Debug)]
 pub struct PreOrderMut<'a, const N: usize, T> {
     indices: PreOrderIndices<N>,
-    root: *mut T,
+    base: *mut T,
     marker: PhantomData<&'a mut T>,
 }
 
 impl<'a, const N: usize, T> PreOrderMut<'a, N, T> {
     pub fn new(tree: &'a mut [T]) -> Self {
         let indices = PreOrderIndices::new(tree.len());
-        let root = tree.as_mut_ptr();
+        let base = tree.as_mut_ptr();
         let marker = PhantomData;
         Self {
             indices,
-            root,
+            base,
             marker,
         }
     }
@@ -64,7 +64,7 @@ impl<'a, const N: usize, T> Iterator for PreOrderMut<'a, N, T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let index = self.indices.next()?;
-        let node = unsafe { &mut *self.root.add(index) };
+        let node = unsafe { &mut *self.base.add(index) };
         Some(node)
     }
 

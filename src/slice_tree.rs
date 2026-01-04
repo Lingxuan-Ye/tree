@@ -195,6 +195,26 @@ impl<T> CompleteBinaryTree for SliceTree<2, T> {
     }
 }
 
+impl<const N: usize, T, I> core::ops::Index<I> for SliceTree<N, T>
+where
+    [T]: core::ops::Index<I>,
+{
+    type Output = <[T] as core::ops::Index<I>>::Output;
+
+    fn index(&self, index: I) -> &Self::Output {
+        core::ops::Index::index(self.as_ref(), index)
+    }
+}
+
+impl<const N: usize, T, I> core::ops::IndexMut<I> for SliceTree<N, T>
+where
+    [T]: core::ops::IndexMut<I>,
+{
+    fn index_mut(&mut self, index: I) -> &mut Self::Output {
+        core::ops::IndexMut::index_mut(self.as_mut(), index)
+    }
+}
+
 impl<const N: usize, T> CompleteTree<N> for [T] {
     type Node = T;
 
@@ -258,14 +278,13 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
         if index_a >= self.len() || index_b >= self.len() {
             return None;
         }
-        if index_a == index_b {
-            return Some(());
-        }
-        unsafe {
+        if index_a != index_b {
             let base = self.as_mut_ptr();
-            let ptr_a = base.add(index_a);
-            let ptr_b = base.add(index_b);
-            ptr::swap_nonoverlapping(ptr_a, ptr_b, 1);
+            unsafe {
+                let ptr_a = base.add(index_a);
+                let ptr_b = base.add(index_b);
+                ptr::swap_nonoverlapping(ptr_a, ptr_b, 1);
+            }
         }
         Some(())
     }
@@ -363,5 +382,25 @@ impl<T> CompleteBinaryTree for [T] {
 
     fn traverse_in_order_mut(&mut self) -> InOrderMut<'_, T> {
         InOrderMut::new(self)
+    }
+}
+
+impl<const N: usize, T> core::ops::Index<Index<N>> for [T] {
+    type Output = T;
+
+    fn index(&self, index: Index<N>) -> &Self::Output {
+        match CompleteTree::<N>::node(self, index) {
+            None => panic!("index out of bounds"),
+            Some(node) => node,
+        }
+    }
+}
+
+impl<const N: usize, T> core::ops::IndexMut<Index<N>> for [T] {
+    fn index_mut(&mut self, index: Index<N>) -> &mut Self::Output {
+        match CompleteTree::<N>::node_mut(self, index) {
+            None => panic!("index out of bounds"),
+            Some(node) => node,
+        }
     }
 }
