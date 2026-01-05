@@ -2,7 +2,7 @@ use crate::index::Index;
 use alloc::vec::Vec;
 use core::iter::FusedIterator;
 use core::marker::PhantomData;
-use core::ops::Range;
+use core::ops::RangeInclusive;
 
 #[derive(Debug, Clone)]
 pub struct PostOrder<'a, const N: usize, T> {
@@ -142,5 +142,5 @@ impl<const N: usize> FusedIterator for PostOrderIndices<N> {}
 #[derive(Debug, Clone)]
 struct Frame<const N: usize> {
     index: usize,
-    children: Range<usize>,
+    children: RangeInclusive<usize>,
 }

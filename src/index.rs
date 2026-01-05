@@ -1,5 +1,5 @@
 use core::iter::FusedIterator;
-use core::ops::Range;
+use core::ops::RangeInclusive;
 
 pub mod traverse;
 
@@ -11,7 +11,7 @@ pub struct Index<const N: usize> {
 
 impl<const N: usize> Index<N> {
     pub const MIN: Self = Self::from_flattened(usize::MIN);
-    pub const MAX: Self = Self::from_flattened(usize::MAX - 1);
+    pub const MAX: Self = Self::from_flattened(usize::MAX);
 
     pub const fn depth(&self) -> usize {
         self.depth
@@ -84,20 +84,19 @@ impl<const N: usize> Index<N> {
             }
             let depth = Self::MAX.depth;
             let start = Self { depth, offset }.to_flattened();
-            let end = offset.saturating_add(N).min(Self::MAX.offset + 1);
-            return IndexRange::from_flattened(start..end);
+            let end = offset.saturating_add(N - 1).min(Self::MAX.offset);
+            return IndexRange::from_flattened(start..=end);
         }
 
         let depth = self.depth + 1;
         let offset = N * self.offset;
         let start = Self { depth, offset }.to_flattened();
-        let end = start + N;
-        IndexRange::from_flattened(start..end)
+        let end = start + N - 1;
+        IndexRange::from_flattened(start..=end)
     }
 
     pub const fn from_flattened(index: usize) -> Self {
         const { assert!(N != 0) }
-        assert!(index < usize::MAX);
 
         match N {
             1 => {
@@ -107,6 +106,11 @@ impl<const N: usize> Index<N> {
             }
 
             2 => {
+                if index == usize::MAX {
+                    let depth = usize::BITS as usize;
+                    let offset = 0;
+                    return Self { depth, offset };
+                }
                 let next = index + 1;
                 let depth = (const { usize::BITS - 1 } - next.leading_zeros()) as usize;
                 let offset = next - (1 << depth);
@@ -133,7 +137,13 @@ impl<const N: usize> Index<N> {
         match N {
             1 => self.depth,
 
-            2 => (1 << self.depth) - 1 + self.offset,
+            2 => {
+                if self.depth == usize::BITS as usize {
+                    usize::MAX
+                } else {
+                    (1 << self.depth) - 1 + self.offset
+                }
+            }
 
             _ => {
                 // `((N.pow(depth) - 1) / (N - 1)) + offset` may overflow for large `N`.
@@ -162,11 +172,15 @@ impl Index<2> {
 }
 
 #[derive(Debug, Clone)]
-pub struct IndexRange<const N: usize>(Range<usize>);
+pub struct IndexRange<const N: usize>(RangeInclusive<usize>);
 
 impl<const N: usize> IndexRange<N> {
     pub fn len(&self) -> usize {
-        self.0.len()
+        if self.is_empty() {
+            0
+        } else {
+            self.0.end() - self.0.start() + 1
+        }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -174,7 +188,9 @@ impl<const N: usize> IndexRange<N> {
     }
 
     pub const fn empty() -> Self {
-        Self::from_flattened(0..0)
+        let start = usize::MAX;
+        let end = usize::MIN;
+        Self::from_flattened(start..=end)
     }
 
     pub const fn root() -> Self {
@@ -189,30 +205,41 @@ impl<const N: usize> IndexRange<N> {
         if depth == Index::<N>::MAX.depth {
             return const {
                 let depth = Index::<N>::MAX.depth;
-                let start = Index::<N> { depth, offset: 0 }.to_flattened();
+                let offset = 0;
+                let start = Index::<N> { depth, offset }.to_flattened();
                 let end = usize::MAX;
-                Self::from_flattened(start..end)
+                Self::from_flattened(start..=end)
             };
         }
 
-        let start = Index::<N> { depth, offset: 0 }.to_flattened();
-        let end = start + N.pow(depth as u32);
-        Self::from_flattened(start..end)
+        let offset = 0;
+        let start = Index::<N> { depth, offset }.to_flattened();
+        let end = start + N.pow(depth as u32) - 1;
+        Self::from_flattened(start..=end)
     }
 
-    pub const fn cap(mut self, max: usize) -> Self {
-        self.0.end = if self.0.end < max { self.0.end } else { max };
-        self
+    pub const fn cap(self, upper: usize) -> Self {
+        let start = *self.0.start();
+        let end = *self.0.end();
+        let end = if end < upper { end } else { upper - 1 };
+        Self::from_flattened(start..=end)
     }
 
-    pub const fn from_flattened(range: Range<usize>) -> Self {
+    pub const fn from_flattened(range: RangeInclusive<usize>) -> Self {
         const { assert!(N != 0) }
+
+        debug_assert!(
+            !(*range.start() == 0 && *range.end() == usize::MAX),
+            "invalid range"
+        );
 
         Self(range)
     }
 
-    pub const fn to_flattened(&self) -> Range<usize> {
-        self.0.start..self.0.end
+    pub const fn to_flattened(&self) -> RangeInclusive<usize> {
+        let start = *self.0.start();
+        let end = *self.0.end();
+        start..=end
     }
 }
 
@@ -226,7 +253,8 @@ impl<const N: usize> Iterator for IndexRange<N> {
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        self.0.size_hint()
+        let len = self.len();
+        (len, Some(len))
     }
 }
 
