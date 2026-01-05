@@ -20,12 +20,15 @@ impl InOrder {
                 tree_len,
             };
         }
-        let index = Index::root();
-        let state = State::Push(index);
+
+        let root = Index::root();
+        let state = State::Push(root);
+
         let last = tree_len - 1;
         let tree_height = Index::<2>::from_flattened(last).depth();
         let capacity = tree_height;
         let stack = Vec::with_capacity(capacity);
+
         Self {
             state,
             stack,

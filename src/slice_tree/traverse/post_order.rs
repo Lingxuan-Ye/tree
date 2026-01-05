@@ -2,7 +2,7 @@ use crate::index::Index;
 use alloc::vec::Vec;
 use core::iter::FusedIterator;
 use core::marker::PhantomData;
-use core::ops::Range;
+use core::ops::RangeInclusive;
 
 #[derive(Debug, Clone)]
 pub struct PostOrder<'a, const N: usize, T> {
@@ -88,17 +88,23 @@ impl<const N: usize> PostOrderIndices<N> {
             let stack = Vec::new();
             return Self { stack, tree_len };
         }
+
         let last = tree_len - 1;
         let tree_height = Index::<N>::from_flattened(last).depth();
         let capacity = tree_height + 1;
         let mut stack = Vec::with_capacity(capacity);
-        let index = const { Index::<N>::root().to_flattened() };
+
+        let root = const { Index::<N>::root().to_flattened() };
         let children = Index::<N>::root()
             .iter_children()
             .cap(tree_len)
             .to_flattened();
-        let frame = Frame { index, children };
+        let frame = Frame {
+            index: root,
+            children,
+        };
         stack.push(frame);
+
         Self { stack, tree_len }
     }
 }
@@ -136,5 +142,5 @@ impl<const N: usize> FusedIterator for PostOrderIndices<N> {}
 #[derive(Debug, Clone)]
 struct Frame<const N: usize> {
     index: usize,
-    children: Range<usize>,
+    children: RangeInclusive<usize>,
 }

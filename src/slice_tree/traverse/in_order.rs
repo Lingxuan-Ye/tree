@@ -93,12 +93,15 @@ impl InOrderIndices {
                 tree_len,
             };
         }
-        let index = const { Index::<2>::root().to_flattened() };
-        let state = State::Push(index);
+
+        let root = const { Index::<2>::root().to_flattened() };
+        let state = State::Push(root);
+
         let last = tree_len - 1;
         let tree_height = Index::<2>::from_flattened(last).depth();
         let capacity = tree_height;
         let stack = Vec::with_capacity(capacity);
+
         Self {
             state,
             stack,

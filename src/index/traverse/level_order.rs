@@ -6,7 +6,16 @@ pub struct LevelOrder<const N: usize>(IndexRange<N>);
 
 impl<const N: usize> LevelOrder<N> {
     pub fn new(tree_len: usize) -> Self {
-        Self(IndexRange::from_flattened(0..tree_len))
+        if tree_len == 0 {
+            let range = IndexRange::empty();
+            return Self(range);
+        }
+
+        let root = const { Index::<N>::root().to_flattened() };
+        let last = tree_len - 1;
+        let range = IndexRange::from_flattened(root..=last);
+
+        Self(range)
     }
 }
 

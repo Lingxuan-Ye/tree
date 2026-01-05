@@ -87,12 +87,15 @@ impl<const N: usize> PreOrderIndices<N> {
             let stack = Vec::new();
             return Self { stack, tree_len };
         }
+
         let last = tree_len - 1;
         let tree_height = Index::<N>::from_flattened(last).depth();
         let capacity = tree_height.saturating_mul(N - 1).saturating_add(1);
         let mut stack = Vec::with_capacity(capacity);
-        let index = const { Index::<N>::root().to_flattened() };
-        stack.push(index);
+
+        let root = const { Index::<N>::root().to_flattened() };
+        stack.push(root);
+
         Self { stack, tree_len }
     }
 }
