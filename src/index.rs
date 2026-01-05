@@ -225,7 +225,7 @@ impl<const N: usize> IndexRange<N> {
         Self::from_flattened(start..=end)
     }
 
-    pub const fn from_flattened(range: RangeInclusive<usize>) -> Self {
+    const fn from_flattened(range: RangeInclusive<usize>) -> Self {
         const { assert!(N != 0) }
 
         debug_assert!(
