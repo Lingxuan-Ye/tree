@@ -22,8 +22,8 @@ impl<const N: usize> Index<N> {
     }
 
     pub const fn new(depth: usize, offset: usize) -> Option<Self> {
-        if depth < Self::MAX.depth && offset < N.pow(depth as u32)
-            || (depth == Self::MAX.depth && offset <= Self::MAX.offset)
+        if depth == Self::MAX.depth && offset <= Self::MAX.offset
+            || depth < Self::MAX.depth && offset < N.pow(depth as u32)
         {
             Some(Self { depth, offset })
         } else {
@@ -36,7 +36,7 @@ impl<const N: usize> Index<N> {
     }
 
     pub const fn parent(&self) -> Option<Self> {
-        if self.depth == Self::root().depth {
+        if self.depth == Self::MIN.depth {
             return None;
         }
 
@@ -114,16 +114,14 @@ impl<const N: usize> Index<N> {
             }
 
             _ => {
-                let mut depth: usize = 0;
                 let mut count: usize = 0;
-                while let Some(width) = N.checked_pow(depth as u32) {
-                    match count.checked_add(width) {
-                        Some(next_count) if index >= next_count => {
-                            depth += 1; // Will never overflow since `depth <= count`.
-                            count = next_count;
-                        }
-                        _ => break,
-                    }
+                let mut depth: usize = 0;
+                while let Some(width) = N.checked_pow(depth as u32)
+                    && let Some(next_count) = count.checked_add(width)
+                    && index >= next_count
+                {
+                    count = next_count;
+                    depth += 1;
                 }
                 let offset = index - count;
                 Self { depth, offset }
@@ -138,8 +136,7 @@ impl<const N: usize> Index<N> {
             2 => (1 << self.depth) - 1 + self.offset,
 
             _ => {
-                // Could cause intermediate overflow for large N.
-                // ((N.pow(self.depth as u32) - 1) / (N - 1)) + self.offset
+                // `((N.pow(depth) - 1) / (N - 1)) + offset` may overflow for large `N`.
 
                 let mut count = 0;
                 let mut depth = 0;
@@ -148,8 +145,7 @@ impl<const N: usize> Index<N> {
                     count += width;
                     depth += 1;
                 }
-                count += self.offset;
-                count
+                count + self.offset
             }
         }
     }

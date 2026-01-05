@@ -14,14 +14,20 @@ impl<const N: usize> PostOrder<N> {
             let stack = Vec::new();
             return Self { stack, tree_len };
         }
+
         let last = tree_len - 1;
         let tree_height = Index::<N>::from_flattened(last).depth();
         let capacity = tree_height + 1;
         let mut stack = Vec::with_capacity(capacity);
-        let index = Index::root();
-        let children = index.iter_children().cap(tree_len);
-        let frame = Frame { index, children };
+
+        let root = Index::root();
+        let children = root.iter_children().cap(tree_len);
+        let frame = Frame {
+            index: root,
+            children,
+        };
         stack.push(frame);
+
         Self { stack, tree_len }
     }
 }

@@ -88,17 +88,23 @@ impl<const N: usize> PostOrderIndices<N> {
             let stack = Vec::new();
             return Self { stack, tree_len };
         }
+
         let last = tree_len - 1;
         let tree_height = Index::<N>::from_flattened(last).depth();
         let capacity = tree_height + 1;
         let mut stack = Vec::with_capacity(capacity);
-        let index = const { Index::<N>::root().to_flattened() };
+
+        let root = const { Index::<N>::root().to_flattened() };
         let children = Index::<N>::root()
             .iter_children()
             .cap(tree_len)
             .to_flattened();
-        let frame = Frame { index, children };
+        let frame = Frame {
+            index: root,
+            children,
+        };
         stack.push(frame);
+
         Self { stack, tree_len }
     }
 }
