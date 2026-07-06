@@ -3,7 +3,7 @@ use core::ops::RangeInclusive;
 
 pub mod traverse;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Index<const N: usize> {
     depth: usize,
     offset: usize,
