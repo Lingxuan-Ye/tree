@@ -25,7 +25,7 @@ impl InOrder {
         let state = State::Push(root);
 
         let last = tree_len - 1;
-        let tree_height = Index::<2>::from_flattened(last).depth();
+        let tree_height = Index::<2>::from_linear(last).depth();
         let capacity = tree_height;
         let stack = Vec::with_capacity(capacity);
 
@@ -45,7 +45,7 @@ impl Iterator for InOrder {
             match self.state {
                 State::Push(index) => {
                     if let Some(left_child) = index.left_child()
-                        && left_child.to_flattened() < self.tree_len
+                        && left_child.to_linear() < self.tree_len
                     {
                         self.state = State::Push(left_child);
                         self.stack.push(index);
@@ -58,7 +58,7 @@ impl Iterator for InOrder {
                 State::Pop => {
                     if let Some(index) = self.stack.pop() {
                         if let Some(right_child) = index.right_child()
-                            && right_child.to_flattened() < self.tree_len
+                            && right_child.to_linear() < self.tree_len
                         {
                             self.state = State::Push(right_child);
                         }

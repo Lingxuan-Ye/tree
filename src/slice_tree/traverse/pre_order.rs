@@ -89,11 +89,11 @@ impl<const N: usize> PreOrderIndices<N> {
         }
 
         let last = tree_len - 1;
-        let tree_height = Index::<N>::from_flattened(last).depth();
+        let tree_height = Index::<N>::from_linear(last).depth();
         let capacity = tree_height.saturating_mul(N - 1).saturating_add(1);
         let mut stack = Vec::with_capacity(capacity);
 
-        let root = const { Index::<N>::root().to_flattened() };
+        let root = const { Index::<N>::root().to_linear() };
         stack.push(root);
 
         Self { stack, tree_len }
@@ -105,7 +105,7 @@ impl<const N: usize> Iterator for PreOrderIndices<N> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let index = self.stack.pop()?;
-        let children = Index::<N>::from_flattened(index)
+        let children = Index::<N>::from_linear(index)
             .iter_children()
             .cap(self.tree_len)
             .to_flattened();

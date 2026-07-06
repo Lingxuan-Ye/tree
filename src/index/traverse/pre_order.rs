@@ -16,7 +16,7 @@ impl<const N: usize> PreOrder<N> {
         }
 
         let last = tree_len - 1;
-        let tree_height = Index::<N>::from_flattened(last).depth();
+        let tree_height = Index::<N>::from_linear(last).depth();
         let capacity = tree_height.saturating_mul(N - 1).saturating_add(1);
         let mut stack = Vec::with_capacity(capacity);
 

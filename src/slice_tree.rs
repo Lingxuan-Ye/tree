@@ -289,8 +289,8 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
     }
 
     fn swap(&mut self, index_a: Index<N>, index_b: Index<N>) -> Option<()> {
-        let index_a = index_a.to_flattened();
-        let index_b = index_b.to_flattened();
+        let index_a = index_a.to_linear();
+        let index_b = index_b.to_linear();
         if index_a >= self.len() || index_b >= self.len() {
             return None;
         }
@@ -306,7 +306,7 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
     }
 
     fn replace(&mut self, index: Index<N>, node: Self::Node) -> Option<Self::Node> {
-        let index = index.to_flattened();
+        let index = index.to_linear();
         if index >= self.len() {
             return None;
         }
@@ -315,22 +315,22 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
     }
 
     fn node(&self, index: Index<N>) -> Option<&Self::Node> {
-        let index = index.to_flattened();
+        let index = index.to_linear();
         self.get(index)
     }
 
     fn node_mut(&mut self, index: Index<N>) -> Option<&mut Self::Node> {
-        let index = index.to_flattened();
+        let index = index.to_linear();
         self.get_mut(index)
     }
 
     fn root(&self) -> Option<&Self::Node> {
-        let index = const { Index::<N>::root().to_flattened() };
+        let index = const { Index::<N>::root().to_linear() };
         self.get(index)
     }
 
     fn root_mut(&mut self) -> Option<&mut Self::Node> {
-        let index = const { Index::<N>::root().to_flattened() };
+        let index = const { Index::<N>::root().to_linear() };
         self.get_mut(index)
     }
 
@@ -343,7 +343,7 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
     }
 
     fn iter_children(&self, index: Index<N>) -> Option<Self::IterChildren<'_>> {
-        if index.to_flattened() >= self.len() {
+        if index.to_linear() >= self.len() {
             return None;
         }
         let children = index.iter_children().cap(self.len()).to_flattened();
@@ -351,7 +351,7 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
     }
 
     fn iter_children_mut(&mut self, index: Index<N>) -> Option<Self::IterChildrenMut<'_>> {
-        if index.to_flattened() >= self.len() {
+        if index.to_linear() >= self.len() {
             return None;
         }
         let children = index.iter_children().cap(self.len()).to_flattened();
