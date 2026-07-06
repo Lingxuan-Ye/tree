@@ -94,11 +94,11 @@ impl InOrderIndices {
             };
         }
 
-        let root = const { Index::<2>::root().to_flattened() };
+        let root = const { Index::<2>::root().to_linear() };
         let state = State::Push(root);
 
         let last = tree_len - 1;
-        let tree_height = Index::<2>::from_flattened(last).depth();
+        let tree_height = Index::<2>::from_linear(last).depth();
         let capacity = tree_height;
         let stack = Vec::with_capacity(capacity);
 
@@ -117,8 +117,8 @@ impl Iterator for InOrderIndices {
         loop {
             match self.state {
                 State::Push(index) => {
-                    if let Some(left_child) = Index::from_flattened(index).left_child() {
-                        let left_child = left_child.to_flattened();
+                    if let Some(left_child) = Index::from_linear(index).left_child() {
+                        let left_child = left_child.to_linear();
                         if left_child < self.tree_len {
                             self.state = State::Push(left_child);
                             self.stack.push(index);
@@ -131,8 +131,8 @@ impl Iterator for InOrderIndices {
 
                 State::Pop => {
                     if let Some(index) = self.stack.pop() {
-                        if let Some(right_child) = Index::from_flattened(index).right_child() {
-                            let right_child = right_child.to_flattened();
+                        if let Some(right_child) = Index::from_linear(index).right_child() {
+                            let right_child = right_child.to_linear();
                             if right_child < self.tree_len {
                                 self.state = State::Push(right_child);
                             }

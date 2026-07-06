@@ -90,11 +90,11 @@ impl<const N: usize> PostOrderIndices<N> {
         }
 
         let last = tree_len - 1;
-        let tree_height = Index::<N>::from_flattened(last).depth();
+        let tree_height = Index::<N>::from_linear(last).depth();
         let capacity = tree_height + 1;
         let mut stack = Vec::with_capacity(capacity);
 
-        let root = const { Index::<N>::root().to_flattened() };
+        let root = const { Index::<N>::root().to_linear() };
         let children = Index::<N>::root()
             .iter_children()
             .cap(tree_len)
@@ -116,7 +116,7 @@ impl<const N: usize> Iterator for PostOrderIndices<N> {
         loop {
             let frame = self.stack.last_mut()?;
             if let Some(child) = frame.children.next() {
-                let grandchildren = Index::<N>::from_flattened(child)
+                let grandchildren = Index::<N>::from_linear(child)
                     .iter_children()
                     .cap(self.tree_len)
                     .to_flattened();

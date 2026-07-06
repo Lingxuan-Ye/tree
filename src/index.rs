@@ -3,15 +3,15 @@ use core::ops::RangeInclusive;
 
 pub mod traverse;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Index<const N: usize> {
     depth: usize,
     offset: usize,
 }
 
 impl<const N: usize> Index<N> {
-    pub const MIN: Self = Self::from_flattened(usize::MIN);
-    pub const MAX: Self = Self::from_flattened(usize::MAX);
+    pub const MIN: Self = Self::from_linear(usize::MIN);
+    pub const MAX: Self = Self::from_linear(usize::MAX);
 
     pub const fn depth(&self) -> usize {
         self.depth
@@ -83,19 +83,19 @@ impl<const N: usize> Index<N> {
                 return IndexRange::empty();
             }
             let depth = Self::MAX.depth;
-            let start = Self { depth, offset }.to_flattened();
+            let start = Self { depth, offset }.to_linear();
             let end = offset.saturating_add(N - 1).min(Self::MAX.offset);
             return IndexRange::from_flattened(start..=end);
         }
 
         let depth = self.depth + 1;
         let offset = N * self.offset;
-        let start = Self { depth, offset }.to_flattened();
+        let start = Self { depth, offset }.to_linear();
         let end = start + N - 1;
         IndexRange::from_flattened(start..=end)
     }
 
-    pub const fn from_flattened(index: usize) -> Self {
+    pub const fn from_linear(index: usize) -> Self {
         const { assert!(N != 0) }
 
         match N {
@@ -133,7 +133,7 @@ impl<const N: usize> Index<N> {
         }
     }
 
-    pub const fn to_flattened(self) -> usize {
+    pub const fn to_linear(self) -> usize {
         match N {
             1 => self.depth,
 
@@ -206,14 +206,14 @@ impl<const N: usize> IndexRange<N> {
             return const {
                 let depth = Index::<N>::MAX.depth;
                 let offset = 0;
-                let start = Index::<N> { depth, offset }.to_flattened();
+                let start = Index::<N> { depth, offset }.to_linear();
                 let end = usize::MAX;
                 Self::from_flattened(start..=end)
             };
         }
 
         let offset = 0;
-        let start = Index::<N> { depth, offset }.to_flattened();
+        let start = Index::<N> { depth, offset }.to_linear();
         let end = start + N.pow(depth as u32) - 1;
         Self::from_flattened(start..=end)
     }
@@ -248,7 +248,7 @@ impl<const N: usize> Iterator for IndexRange<N> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let index = self.0.next()?;
-        let index = Index::<N>::from_flattened(index);
+        let index = Index::<N>::from_linear(index);
         Some(index)
     }
 
@@ -267,7 +267,7 @@ impl<const N: usize> ExactSizeIterator for IndexRange<N> {
 impl<const N: usize> DoubleEndedIterator for IndexRange<N> {
     fn next_back(&mut self) -> Option<Self::Item> {
         let index = self.0.next_back()?;
-        let index = Index::<N>::from_flattened(index);
+        let index = Index::<N>::from_linear(index);
         Some(index)
     }
 }

@@ -11,7 +11,7 @@ impl<const N: usize> LevelOrder<N> {
             return Self(range);
         }
 
-        let root = const { Index::<N>::root().to_flattened() };
+        let root = const { Index::<N>::root().to_linear() };
         let last = tree_len - 1;
         let range = IndexRange::from_flattened(root..=last);
 

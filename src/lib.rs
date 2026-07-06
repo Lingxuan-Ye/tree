@@ -62,7 +62,7 @@ pub trait CompleteTree<const N: usize> {
             return 0;
         }
         let index = self.len() - 1;
-        let index = Index::<N>::from_flattened(index);
+        let index = Index::<N>::from_linear(index);
         index.depth()
     }
 
@@ -89,7 +89,7 @@ pub trait CompleteTree<const N: usize> {
             return None;
         }
         let index = self.len() - 1;
-        let index = Index::<N>::from_flattened(index);
+        let index = Index::<N>::from_linear(index);
         self.node(index)
     }
 
@@ -98,7 +98,7 @@ pub trait CompleteTree<const N: usize> {
             return None;
         }
         let index = self.len() - 1;
-        let index = Index::<N>::from_flattened(index);
+        let index = Index::<N>::from_linear(index);
         self.node_mut(index)
     }
 
