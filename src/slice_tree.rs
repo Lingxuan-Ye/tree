@@ -221,26 +221,6 @@ impl<T> CompleteBinaryTree for SliceTree<T, 2> {
     }
 }
 
-impl<T, const N: usize, I> core::ops::Index<I> for SliceTree<T, N>
-where
-    [T]: core::ops::Index<I>,
-{
-    type Output = <[T] as core::ops::Index<I>>::Output;
-
-    fn index(&self, index: I) -> &Self::Output {
-        core::ops::Index::index(self.as_ref(), index)
-    }
-}
-
-impl<T, const N: usize, I> core::ops::IndexMut<I> for SliceTree<T, N>
-where
-    [T]: core::ops::IndexMut<I>,
-{
-    fn index_mut(&mut self, index: I) -> &mut Self::Output {
-        core::ops::IndexMut::index_mut(self.as_mut(), index)
-    }
-}
-
 impl<T, const N: usize> CompleteTree<N> for [T] {
     type Node = T;
 
