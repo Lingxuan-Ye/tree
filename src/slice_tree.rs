@@ -11,15 +11,25 @@ pub mod traverse;
 #[repr(transparent)]
 pub struct SliceTree<T, const N: usize>([T]);
 
+impl<T, const N: usize> SliceTree<T, N> {
+    pub const fn from_slice(slice: &[T]) -> &Self {
+        unsafe { mem::transmute(slice) }
+    }
+
+    pub const fn from_mut_slice(slice: &mut [T]) -> &mut Self {
+        unsafe { mem::transmute(slice) }
+    }
+}
+
 impl<'a, T, const N: usize> From<&'a [T]> for &'a SliceTree<T, N> {
     fn from(value: &'a [T]) -> Self {
-        unsafe { mem::transmute(value) }
+        SliceTree::from_slice(value)
     }
 }
 
 impl<'a, T, const N: usize> From<&'a mut [T]> for &'a mut SliceTree<T, N> {
     fn from(value: &'a mut [T]) -> Self {
-        unsafe { mem::transmute(value) }
+        SliceTree::from_mut_slice(value)
     }
 }
 
