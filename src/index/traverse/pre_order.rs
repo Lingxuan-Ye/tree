@@ -32,7 +32,7 @@ impl<const N: usize> Iterator for PreOrder<N> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let index = self.stack.pop()?;
-        let children = index.iter_children().cap(self.tree_len);
+        let children = index.iter_children().cap(self.tree_len).into_iter();
         for child in children.rev() {
             self.stack.push(child);
         }

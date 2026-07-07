@@ -1,5 +1,5 @@
 use core::iter::FusedIterator;
-use core::ops::RangeInclusive;
+use core::range::RangeInclusive;
 
 pub mod traverse;
 
@@ -72,7 +72,7 @@ impl<const N: usize> Index<N> {
         Some(Self { depth, offset })
     }
 
-    pub fn iter_children(&self) -> IndexRange<N> {
+    pub const fn iter_children(&self) -> IndexRange<N> {
         if self.depth == Self::MAX.depth {
             return IndexRange::empty();
         }
@@ -84,15 +84,20 @@ impl<const N: usize> Index<N> {
             }
             let depth = Self::MAX.depth;
             let start = Self { depth, offset }.to_linear();
-            let end = offset.saturating_add(N - 1).min(Self::MAX.offset);
-            return IndexRange::from_flattened(start..=end);
+            let mut last = offset.saturating_add(N - 1);
+            if last > Self::MAX.offset {
+                last = Self::MAX.offset;
+            }
+            let range = RangeInclusive { start, last };
+            return IndexRange::from_linear(range);
         }
 
         let depth = self.depth + 1;
         let offset = N * self.offset;
         let start = Self { depth, offset }.to_linear();
-        let end = start + N - 1;
-        IndexRange::from_flattened(start..=end)
+        let last = start + N - 1;
+        let range = RangeInclusive { start, last };
+        IndexRange::from_linear(range)
     }
 
     pub const fn from_linear(index: usize) -> Self {
@@ -179,7 +184,7 @@ impl<const N: usize> IndexRange<N> {
         if self.is_empty() {
             0
         } else {
-            self.0.end() - self.0.start() + 1
+            self.0.last - self.0.start + 1
         }
     }
 
@@ -189,8 +194,9 @@ impl<const N: usize> IndexRange<N> {
 
     pub const fn empty() -> Self {
         let start = usize::MAX;
-        let end = usize::MIN;
-        Self::from_flattened(start..=end)
+        let last = usize::MIN;
+        let range = RangeInclusive { start, last };
+        Self::from_linear(range)
     }
 
     pub const fn root() -> Self {
@@ -207,48 +213,62 @@ impl<const N: usize> IndexRange<N> {
                 let depth = Index::<N>::MAX.depth;
                 let offset = 0;
                 let start = Index::<N> { depth, offset }.to_linear();
-                let end = usize::MAX;
-                Self::from_flattened(start..=end)
+                let last = usize::MAX;
+                let range = RangeInclusive { start, last };
+                Self::from_linear(range)
             };
         }
 
         let offset = 0;
         let start = Index::<N> { depth, offset }.to_linear();
-        let end = start + N.pow(depth as u32) - 1;
-        Self::from_flattened(start..=end)
+        let last = start + N.pow(depth as u32) - 1;
+        let range = RangeInclusive { start, last };
+        Self::from_linear(range)
     }
 
     pub const fn cap(self, upper: usize) -> Self {
-        let start = *self.0.start();
-        let end = *self.0.end();
-        let end = if end < upper { end } else { upper - 1 };
-        Self::from_flattened(start..=end)
+        let start = self.0.start;
+        let last = self.0.last;
+        let last = if last < upper { last } else { upper - 1 };
+        let range = RangeInclusive { start, last };
+        Self::from_linear(range)
     }
 
-    const fn from_flattened(range: RangeInclusive<usize>) -> Self {
+    const fn from_linear(range: RangeInclusive<usize>) -> Self {
         const { assert!(N != 0) }
 
         debug_assert!(
-            !(*range.start() == 0 && *range.end() == usize::MAX),
-            "invalid range"
+            !(range.start == 0 && range.last != 0),
+            "invalid range: a range including the root always has length 1"
         );
 
         Self(range)
     }
 
-    pub const fn to_flattened(&self) -> RangeInclusive<usize> {
-        let start = *self.0.start();
-        let end = *self.0.end();
-        start..=end
+    pub const fn to_linear(&self) -> RangeInclusive<usize> {
+        self.0
     }
 }
 
-impl<const N: usize> Iterator for IndexRange<N> {
+impl<const N: usize> IntoIterator for IndexRange<N> {
+    type Item = Index<N>;
+    type IntoIter = IndexRangeIter<N>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        IndexRangeIter(self.0)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct IndexRangeIter<const N: usize>(RangeInclusive<usize>);
+
+impl<const N: usize> Iterator for IndexRangeIter<N> {
     type Item = Index<N>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let index = self.0.next()?;
+        let index = self.0.into_iter().next()?;
         let index = Index::<N>::from_linear(index);
+        self.0.start += 1;
         Some(index)
     }
 
@@ -258,18 +278,23 @@ impl<const N: usize> Iterator for IndexRange<N> {
     }
 }
 
-impl<const N: usize> ExactSizeIterator for IndexRange<N> {
+impl<const N: usize> ExactSizeIterator for IndexRangeIter<N> {
     fn len(&self) -> usize {
-        self.len()
+        if self.0.is_empty() {
+            0
+        } else {
+            self.0.last - self.0.start + 1
+        }
     }
 }
 
-impl<const N: usize> DoubleEndedIterator for IndexRange<N> {
+impl<const N: usize> DoubleEndedIterator for IndexRangeIter<N> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        let index = self.0.next_back()?;
+        let index = self.0.into_iter().next_back()?;
         let index = Index::<N>::from_linear(index);
+        self.0.last -= 1;
         Some(index)
     }
 }
 
-impl<const N: usize> FusedIterator for IndexRange<N> {}
+impl<const N: usize> FusedIterator for IndexRangeIter<N> {}

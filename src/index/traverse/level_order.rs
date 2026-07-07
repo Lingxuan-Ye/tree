@@ -1,21 +1,22 @@
-use crate::{Index, IndexRange};
+use crate::{Index, IndexRange, index::IndexRangeIter};
 use core::iter::FusedIterator;
+use core::range::RangeInclusive;
 
 #[derive(Debug, Clone)]
-pub struct LevelOrder<const N: usize>(IndexRange<N>);
+pub struct LevelOrder<const N: usize>(IndexRangeIter<N>);
 
 impl<const N: usize> LevelOrder<N> {
     pub fn new(tree_len: usize) -> Self {
         if tree_len == 0 {
-            let range = IndexRange::empty();
-            return Self(range);
+            let iter = IndexRange::empty().into_iter();
+            return Self(iter);
         }
 
-        let root = const { Index::<N>::root().to_linear() };
+        let start = const { Index::<N>::root().to_linear() };
         let last = tree_len - 1;
-        let range = IndexRange::from_flattened(root..=last);
-
-        Self(range)
+        let range = RangeInclusive { start, last };
+        let iter = IndexRange::from_linear(range).into_iter();
+        Self(iter)
     }
 }
 

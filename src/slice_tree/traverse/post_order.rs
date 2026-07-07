@@ -2,7 +2,7 @@ use crate::index::Index;
 use alloc::vec::Vec;
 use core::iter::FusedIterator;
 use core::marker::PhantomData;
-use core::ops::RangeInclusive;
+use core::range::RangeInclusiveIter;
 
 #[derive(Debug, Clone)]
 pub struct PostOrder<'a, const N: usize, T> {
@@ -94,15 +94,13 @@ impl<const N: usize> PostOrderIndices<N> {
         let capacity = tree_height + 1;
         let mut stack = Vec::with_capacity(capacity);
 
-        let root = const { Index::<N>::root().to_linear() };
+        let index = const { Index::<N>::root().to_linear() };
         let children = Index::<N>::root()
             .iter_children()
             .cap(tree_len)
-            .to_flattened();
-        let frame = Frame {
-            index: root,
-            children,
-        };
+            .to_linear()
+            .into_iter();
+        let frame = Frame { index, children };
         stack.push(frame);
 
         Self { stack, tree_len }
@@ -115,15 +113,13 @@ impl<const N: usize> Iterator for PostOrderIndices<N> {
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             let frame = self.stack.last_mut()?;
-            if let Some(child) = frame.children.next() {
-                let grandchildren = Index::<N>::from_linear(child)
+            if let Some(index) = frame.children.next() {
+                let children = Index::<N>::from_linear(index)
                     .iter_children()
                     .cap(self.tree_len)
-                    .to_flattened();
-                let frame = Frame {
-                    index: child,
-                    children: grandchildren,
-                };
+                    .to_linear()
+                    .into_iter();
+                let frame = Frame { index, children };
                 self.stack.push(frame);
                 continue;
             }
@@ -142,5 +138,5 @@ impl<const N: usize> FusedIterator for PostOrderIndices<N> {}
 #[derive(Debug, Clone)]
 struct Frame<const N: usize> {
     index: usize,
-    children: RangeInclusive<usize>,
+    children: RangeInclusiveIter<usize>,
 }

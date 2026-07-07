@@ -108,7 +108,8 @@ impl<const N: usize> Iterator for PreOrderIndices<N> {
         let children = Index::<N>::from_linear(index)
             .iter_children()
             .cap(self.tree_len)
-            .to_flattened();
+            .to_linear()
+            .into_iter();
         for child in children.rev() {
             self.stack.push(child);
         }
