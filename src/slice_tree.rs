@@ -346,7 +346,7 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
         if index.to_linear() >= self.len() {
             return None;
         }
-        let children = index.iter_children().cap(self.len()).to_flattened();
+        let children = index.iter_children().cap(self.len()).to_linear();
         self.get(children).map(Self::iter)
     }
 
@@ -354,7 +354,7 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
         if index.to_linear() >= self.len() {
             return None;
         }
-        let children = index.iter_children().cap(self.len()).to_flattened();
+        let children = index.iter_children().cap(self.len()).to_linear();
         self.get_mut(children).map(Self::iter_mut)
     }
 
@@ -362,7 +362,7 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
         if depth > CompleteTree::<N>::height(self) {
             return None;
         }
-        let level = IndexRange::<N>::level(depth).cap(self.len()).to_flattened();
+        let level = IndexRange::<N>::level(depth).cap(self.len()).to_linear();
         self.get(level).map(Self::iter)
     }
 
@@ -370,7 +370,7 @@ impl<const N: usize, T> CompleteTree<N> for [T] {
         if depth > CompleteTree::<N>::height(self) {
             return None;
         }
-        let level = IndexRange::<N>::level(depth).cap(self.len()).to_flattened();
+        let level = IndexRange::<N>::level(depth).cap(self.len()).to_linear();
         self.get_mut(level).map(Self::iter_mut)
     }
 

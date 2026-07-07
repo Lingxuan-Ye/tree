@@ -1,4 +1,4 @@
-use crate::{Index, IndexRange};
+use crate::{Index, index::IndexRangeIter};
 use alloc::vec::Vec;
 use core::iter::FusedIterator;
 
@@ -20,12 +20,9 @@ impl<const N: usize> PostOrder<N> {
         let capacity = tree_height + 1;
         let mut stack = Vec::with_capacity(capacity);
 
-        let root = Index::root();
-        let children = root.iter_children().cap(tree_len);
-        let frame = Frame {
-            index: root,
-            children,
-        };
+        let index = Index::root();
+        let children = index.iter_children().cap(tree_len).into_iter();
+        let frame = Frame { index, children };
         stack.push(frame);
 
         Self { stack, tree_len }
@@ -38,12 +35,9 @@ impl<const N: usize> Iterator for PostOrder<N> {
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             let frame = self.stack.last_mut()?;
-            if let Some(child) = frame.children.next() {
-                let grandchildren = child.iter_children().cap(self.tree_len);
-                let frame = Frame {
-                    index: child,
-                    children: grandchildren,
-                };
+            if let Some(index) = frame.children.next() {
+                let children = index.iter_children().cap(self.tree_len).into_iter();
+                let frame = Frame { index, children };
                 self.stack.push(frame);
                 continue;
             }
@@ -64,5 +58,5 @@ impl<const N: usize> FusedIterator for PostOrder<N> {}
 #[derive(Debug, Clone)]
 struct Frame<const N: usize> {
     index: Index<N>,
-    children: IndexRange<N>,
+    children: IndexRangeIter<N>,
 }
