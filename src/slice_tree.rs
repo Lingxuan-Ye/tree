@@ -1,5 +1,6 @@
 use self::traverse::{InOrder, InOrderMut, PostOrder, PostOrderMut, PreOrder, PreOrderMut};
-use crate::{CompleteBinaryTree, CompleteTree, Index, IndexRange};
+use crate::index::{Index, IndexRange};
+use crate::{CompleteBinaryTree, CompleteTree};
 use core::mem;
 use core::ops::{Deref, DerefMut};
 use core::ptr;

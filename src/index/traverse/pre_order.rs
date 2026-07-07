@@ -1,4 +1,4 @@
-use crate::Index;
+use crate::index::Index;
 use alloc::vec::Vec;
 use core::iter::FusedIterator;
 
