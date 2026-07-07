@@ -1,4 +1,4 @@
-use crate::{Index, IndexRange, index::IndexRangeIter};
+use crate::index::{Index, IndexRange, IndexRangeIter};
 use core::iter::FusedIterator;
 use core::range::RangeInclusive;
 
