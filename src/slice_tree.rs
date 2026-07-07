@@ -9,33 +9,33 @@ pub mod traverse;
 
 #[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(transparent)]
-pub struct SliceTree<const N: usize, T>([T]);
+pub struct SliceTree<T, const N: usize>([T]);
 
-impl<'a, const N: usize, T> From<&'a [T]> for &'a SliceTree<N, T> {
+impl<'a, T, const N: usize> From<&'a [T]> for &'a SliceTree<T, N> {
     fn from(value: &'a [T]) -> Self {
         unsafe { mem::transmute(value) }
     }
 }
 
-impl<'a, const N: usize, T> From<&'a mut [T]> for &'a mut SliceTree<N, T> {
+impl<'a, T, const N: usize> From<&'a mut [T]> for &'a mut SliceTree<T, N> {
     fn from(value: &'a mut [T]) -> Self {
         unsafe { mem::transmute(value) }
     }
 }
 
-impl<'a, const N: usize, T> From<&'a SliceTree<N, T>> for &'a [T] {
-    fn from(value: &'a SliceTree<N, T>) -> Self {
+impl<'a, T, const N: usize> From<&'a SliceTree<T, N>> for &'a [T] {
+    fn from(value: &'a SliceTree<T, N>) -> Self {
         &value.0
     }
 }
 
-impl<'a, const N: usize, T> From<&'a mut SliceTree<N, T>> for &'a mut [T] {
-    fn from(value: &'a mut SliceTree<N, T>) -> Self {
+impl<'a, T, const N: usize> From<&'a mut SliceTree<T, N>> for &'a mut [T] {
+    fn from(value: &'a mut SliceTree<T, N>) -> Self {
         &mut value.0
     }
 }
 
-impl<const N: usize, T> Deref for SliceTree<N, T> {
+impl<T, const N: usize> Deref for SliceTree<T, N> {
     type Target = [T];
 
     fn deref(&self) -> &Self::Target {
@@ -43,25 +43,25 @@ impl<const N: usize, T> Deref for SliceTree<N, T> {
     }
 }
 
-impl<const N: usize, T> DerefMut for SliceTree<N, T> {
+impl<T, const N: usize> DerefMut for SliceTree<T, N> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl<const N: usize, T> AsRef<[T]> for SliceTree<N, T> {
+impl<T, const N: usize> AsRef<[T]> for SliceTree<T, N> {
     fn as_ref(&self) -> &[T] {
         &self.0
     }
 }
 
-impl<const N: usize, T> AsMut<[T]> for SliceTree<N, T> {
+impl<T, const N: usize> AsMut<[T]> for SliceTree<T, N> {
     fn as_mut(&mut self) -> &mut [T] {
         &mut self.0
     }
 }
 
-impl<const N: usize, T> CompleteTree<N> for SliceTree<N, T> {
+impl<T, const N: usize> CompleteTree<N> for SliceTree<T, N> {
     type Node = T;
 
     type IterChildren<'a>
@@ -191,7 +191,7 @@ impl<const N: usize, T> CompleteTree<N> for SliceTree<N, T> {
     }
 }
 
-impl<T> CompleteBinaryTree for SliceTree<2, T> {
+impl<T> CompleteBinaryTree for SliceTree<T, 2> {
     type InOrder<'a>
         = InOrder<'a, T>
     where
@@ -211,7 +211,7 @@ impl<T> CompleteBinaryTree for SliceTree<2, T> {
     }
 }
 
-impl<const N: usize, T, I> core::ops::Index<I> for SliceTree<N, T>
+impl<T, const N: usize, I> core::ops::Index<I> for SliceTree<T, N>
 where
     [T]: core::ops::Index<I>,
 {
@@ -222,7 +222,7 @@ where
     }
 }
 
-impl<const N: usize, T, I> core::ops::IndexMut<I> for SliceTree<N, T>
+impl<T, const N: usize, I> core::ops::IndexMut<I> for SliceTree<T, N>
 where
     [T]: core::ops::IndexMut<I>,
 {
@@ -231,7 +231,7 @@ where
     }
 }
 
-impl<const N: usize, T> CompleteTree<N> for [T] {
+impl<T, const N: usize> CompleteTree<N> for [T] {
     type Node = T;
 
     type IterChildren<'a>
@@ -419,7 +419,7 @@ impl<T> CompleteBinaryTree for [T] {
     }
 }
 
-impl<const N: usize, T> core::ops::Index<Index<N>> for [T] {
+impl<T, const N: usize> core::ops::Index<Index<N>> for [T] {
     type Output = T;
 
     fn index(&self, index: Index<N>) -> &Self::Output {
@@ -430,7 +430,7 @@ impl<const N: usize, T> core::ops::Index<Index<N>> for [T] {
     }
 }
 
-impl<const N: usize, T> core::ops::IndexMut<Index<N>> for [T] {
+impl<T, const N: usize> core::ops::IndexMut<Index<N>> for [T] {
     fn index_mut(&mut self, index: Index<N>) -> &mut Self::Output {
         match CompleteTree::<N>::node_mut(self, index) {
             None => panic!("index out of bounds"),
